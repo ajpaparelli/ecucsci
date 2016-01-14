@@ -1,18 +1,27 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: stringtable.c contains all function used in storing 
+		strings into a string list.
+
+	Change Log:
+	2016-11-14: Initial Revision
+
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "stringtable.h"
 #include "allocate.h"
 
-struct Node
-{
-	char* data;
-	struct Node* next;
-};
+List stringList;
 
-
-struct Node* stringList;
-
+// Copied from assignment description to create a string that is
+// ready for storage in the string list.
 char* perm(const char* s)
 {
 	char* result = NEWARRAY(char, strlen(s)+1);
@@ -20,12 +29,15 @@ char* perm(const char* s)
 	return result;
 }
 
+// Intern Function, adds string to list if it does not exist,
+// returns string if it already exists in the list, or returns
+// NULL function fails to add string to list
 char* intern(const char* s)
 {
-	struct Node* currptr;
+	Node* currptr;
   	if(stringList == NULL)
 	{
-		stringList = NEW(struct Node);
+		stringList = NEW(Node);
 		stringList->data = perm(s);
 		stringList->next = NULL;
 		return stringList->data;
@@ -41,7 +53,7 @@ char* intern(const char* s)
 			}
 			else if(currptr->next == NULL)
 			{
-				currptr->next = NEW(struct Node);
+				currptr->next = NEW(Node);
 				currptr = currptr->next;
 				currptr->data = perm(s);
 				currptr->next = NULL;
@@ -54,12 +66,13 @@ char* intern(const char* s)
 	}	
 }
 
+// Clear function, clears the string list from memory when invoked.
 void clearList()
 {
 	if(stringList != NULL)
 	{		
-		struct Node* currptr = stringList;
-		struct Node* temp;
+		Node* currptr = stringList;
+		Node* temp;
 		while(currptr != NULL)
 		{
 			temp = currptr;
