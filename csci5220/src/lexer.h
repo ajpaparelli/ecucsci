@@ -1,9 +1,12 @@
-#include <stdio.h>
+#ifndef LEXER_H
+#define LEXER_H
 
+#include <stdio.h>
+#include "token.h"
 int yylex();
 
 extern FILE* yyin;
-YYSTYPE yyval;
+YYSTYPE yylval;
 
 #define TOK_ARROW 256
 #define TOK_ACTION 257
@@ -23,7 +26,7 @@ YYSTYPE yyval;
 #define TOK_ISLIST 271
 #define TOK_ISNULL 272
 #define TOK_LET 273
-#define TOK_NO 274
+#define TOK_NOT 274
 #define TOK_OR 275
 #define TOK_PRINT 276
 #define TOK_PLIST 277
@@ -34,6 +37,7 @@ YYSTYPE yyval;
 #define TOK_TRUE 282
 #define TOK_QUOTE 283
 #define TOK_ID 284
-#define TOK_NUM 285
+#define TOK_INTEGER 285
+#define TOK_FLOAT 286
 
-
+#endif

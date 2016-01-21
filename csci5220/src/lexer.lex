@@ -1,19 +1,22 @@
 %{
-#include "lexer.h"
 #include "token.h"
+#include "lexer.h"
 #include "stringtable.h"
 
-YYSTYPE yylval;         /* This variable holds the token attribute */
+YYSTYPE yylval;
 %}
 
 letter  [a-zA-Z]
 digit   [0-9]
-id      {letter}+
+id      [a-zA-Z][a-zA-Z0-9_]*
 number  {digit}+
+realnum {digit}*"."{digit}+
+comment "//".
 
 %%
 [ \t]* 		{}
-"\n" 		{line_number++;}
+comment		{}
+"\n" 		{}
 "("     	{return '(';}
 ")"		{return ')';}
 "+"		{return '+';}
@@ -52,21 +55,22 @@ not		{return TOK_NOT;}
 or		{return TOK_OR;}
 print		{return TOK_PRINT;}
 printList	{return TOK_PLIST;}
-produce		{return TOK_PROD:
+produce		{return TOK_PROD;}
 readChar	{return TOK_READC;}
 readInt		{return TOK_READI;}
 tail		{return TOK_TAIL;}
 true		{return TOK_TRUE;}
 "'"		{return TOK_QUOTE;}
 
-{id}    	{yylval.str = intern(yytext);  /* Flex stores the lexeme into yytext. */
+{id}    	{yylval.str = intern(yytext);
 	         return TOK_ID;
         	}
-{number}	{yyval.str = intern(yytext);
-		 return TOK_NUM;
+{number}	{yylval.str = intern(yytext);
+		 return TOK_INTEGER;
 		}
-
-"//"+{id}	{}
+{realnum}	{yylval.str = intern(yytext);
+		 return TOK_FLOAT;
+		}
 %%
 
 /*======================================================*

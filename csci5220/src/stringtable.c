@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "stringtable.h"
-#include "allocate.h"
 
 List stringList;
 
