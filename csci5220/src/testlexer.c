@@ -29,6 +29,9 @@ int main(int argc, char *argv[])
       else if(tok == TOK_ID) {
         printf("ID, name = %s\n", yylval.str);
       }
+      else if(tok == TOK_FLOAT) {
+	printf("REAL, value = %f\n", yylval.dval);
+      }
       else {
         printf("Token %d\n",yylval.ival);
       }
