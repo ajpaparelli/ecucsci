@@ -14,14 +14,15 @@ vowel	[a|e|i|o|u|A|E|I|O|U]
 [^{letter}] 		{printf("%c",yytext[0]);}
 {vowel}({letter})* 	{printf("%say",yytext);}
 ({letter})* 		{	
-				int i;
-		       		int len = strlen(yytext);
-		       		for(i = 1; i < len; i++)
-					printf("%c",yytext[i]);
+						int i;
+		       			int len = strlen(yytext);
+		       			for(i = 1; i < len; i++)
+							printf("%c",yytext[i]);
 
-				printf("%c",yytext[0]);
-		      		printf("ay");
-		  	}
+						printf("%c",yytext[0]);
+			      		printf("ay");
+		  			}
+<<EOF>>			    { yyterminate(); }
 %%
 
 /*======================================================*
@@ -37,28 +38,16 @@ int yywrap()
 
 int main(int argc, char *argv[])
 {
-  if(argc == 2) {
-    /*----------------------------------*
-     * Flex reads from open file yyin.  *
-     *----------------------------------*/
+  	if(argc == 2)
+	{
+    	yyin = fopen(argv[1], "r");
+    	
+		if(yyin == NULL)
+			return 1;
+	}
+	else
+		yyin = stdin;
 
-    yyin = fopen(argv[1], "r");
-    if(yyin == NULL) return 1;
-
-    /*---------------------------------------------*
-     * yylex() reads a lexeme and returns a token. *
-     *---------------------------------------------*/
-   }
-   else
-	yyin = stdin;
-
-    while(1) {
-      int tok = yylex();
-
-      if(tok == 0) {
-        break;
-      }
-
-    }
+    yylex();
 	return 0;
 }
