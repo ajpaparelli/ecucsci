@@ -1,28 +1,13 @@
 %{
-#include "token.h"
-#include "lexer.h"
-#include "string.h"
-#include "stringtable.h"
 
-YYSTYPE yylval;
 %}
 
-letter  [a-zA-Z]
-vowel	[a|e|i|o|u|A|E|I|O|U]
 
 %%
-[^{letter}] 		{printf("%c",yytext[0]);}
-{vowel}({letter})* 	{printf("%say",yytext);}
-({letter})* 		{	
-						int i;
-		       			int len = strlen(yytext);
-		       			for(i = 1; i < len; i++)
-							printf("%c",yytext[i]);
-
-						printf("%c",yytext[0]);
-			      		printf("ay");
-		  			}
-<<EOF>>			    { yyterminate(); }
+^([^a\n]*a){3}[^a\n]*$	{ printf("%s : found type 1\n", yytext); }
+^(1|(0.))(..)*\n		{ printf("%s : found type 2\n", yytext); }
+^.*"//"[^\n]*\n			{ printf("%s : found type 3\n", yytext); }
+"/*"((\*+[^/*])|([^*]))*\**"*/" { printf("%s : found type 4\n", yytext); }
 %%
 
 /*======================================================*
