@@ -26,14 +26,18 @@ int main(int argc, char *argv[])
       if(tok == 0) {
         break;
       }
+
       else if(tok == TOK_ID) {
         printf("ID, name = %s\n", yylval.str);
       }
-      else if(tok == TOK_FLOAT) {
-	printf("REAL, value = %f\n", yylval.dval);
+      else if(tok == TOK_INTEGER) {
+	printf("INTEGER, value = %d\n", yylval.ival);
+      }
+      else if(tok > 255) {
+        printf("Token %d, value = %s\n",tok,yylval.str);
       }
       else {
-        printf("Token %d\n",yylval.ival);
+	printf("Token %d\n", tok);
       }
     }
   }

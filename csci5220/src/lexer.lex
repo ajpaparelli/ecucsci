@@ -1,75 +1,76 @@
 %{
 #include "token.h"
 #include "lexer.h"
+#include "string.h"
 #include "stringtable.h"
 
 YYSTYPE yylval;
+int linenum = 0;
 %}
 
 letter  [a-zA-Z]
 digit   [0-9]
-id      [a-zA-Z][a-zA-Z0-9_]*
+id      {letter}+
 number  {digit}+
-realnum {digit}*"."{digit}+
-comment "//".
+comment "//".*\n
 
 %%
-[ \t]* 		{}
+
+[ \t] 		{}
 comment		{}
-"\n" 		{}
+"\n" 		{linenum++;}
 "("     	{return '(';}
 ")"		{return ')';}
-"+"		{return '+';}
-"-"		{return	'-';}
-"*"		{return '*';}
-"/"		{return '/';}
-"<"		{return '<';}
-">"		{return '>';}
-"|"		{return '|';}
-"&"		{return '&';}
 ";"		{return ';';}
 ":"		{return ':';}
 ","		{return ',';}
 "["		{return '[';}
 "]"		{return ']';}
-"{"		{return '{';}
-"}"		{return '}';}
+"|"		{return '|';}
 "->"		{return TOK_ARROW;}
-"~>"		{return TOK_ACTION;}
-"=="		{return TOK_EQUIV;}
-and		{return TOK_AND;}
-case		{return TOK_CASE;}
-def     	{return TOK_DEF;}
-else		{return TOK_ELSE;}
-end		{return TOK_END;}
-false		{return TOK_FALSE;}
-head		{return TOK_HEAD;}
-in		{return TOK_IN;}
-isBool		{return TOK_ISBOOL;}
-isFunction	{return TOK_ISFUNC;}
-isInt		{return TOK_ISINT;}
-isList		{return TOK_ISLIST;}
-isNull		{return TOK_ISNULL;}
-let		{return TOK_LET;}
-not		{return TOK_NOT;}
-or		{return TOK_OR;}
-print		{return TOK_PRINT;}
-printList	{return TOK_PLIST;}
-produce		{return TOK_PROD;}
-readChar	{return TOK_READC;}
-readInt		{return TOK_READI;}
-tail		{return TOK_TAIL;}
-true		{return TOK_TRUE;}
-"'"		{return TOK_QUOTE;}
-
+"~>"		{return TOK_PROD;}
+def     	{yylval.str = yytext;
+		 return TOK_DEF;}
+end		{yylval.str = yytext;
+		 return TOK_END;}
+let		{yylval.str = yytext;
+		 return TOK_LET;}
+tail		{yylval.str = yytext;
+		 return TOK_TAIL;}
+in		{yylval.str = yytext;
+		 return TOK_IN;}
+head|isList|isNull	{yylval.str = yytext;
+		 	 return TOK_HEAD;
+			}	
+print|printList|produce|readChar|readInt {yylval.str = yytext;
+		 			  return TOK_ACTION;
+					 }
+isBool|isFunction|isInt|isAction	{yylval.str = yytext;
+		 		 	 return TOK_CHECK;
+					}
+case|if|else	{yylval.str = yytext;
+		 return TOK_IFOP;
+		}
+and|or|not	{yylval.str = yytext;
+		 return TOK_LOGIC;
+	        }
+true|false      {yylval.str = yytext;
+		 return TOK_BOOL;
+		}
+"*"|"/"		{yylval.str = yytext;
+		 return TOK_MULOP;
+		}
+"+"|"-"		{yylval.str = yytext;
+		 return TOK_ADDOP;
+		}
+"=="|">"|"<"	{yylval.str = yytext;
+		 return TOK_RELOP;
+		}
 {id}    	{yylval.str = intern(yytext);
 	         return TOK_ID;
         	}
-{number}	{yylval.str = intern(yytext);
+{number}	{yylval.ival = atoi(yytext);
 		 return TOK_INTEGER;
-		}
-{realnum}	{yylval.str = intern(yytext);
-		 return TOK_FLOAT;
 		}
 %%
 
