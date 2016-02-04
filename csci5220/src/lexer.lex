@@ -27,6 +27,7 @@ comment		{}
 "["		{return '[';}
 "]"		{return ']';}
 "|"		{return '|';}
+"="		{return '=';}
 "->"		{return TOK_ARROW;}
 "~>"		{return TOK_PROD;}
 def     	{yylval.str = yytext;
