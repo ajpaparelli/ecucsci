@@ -46,7 +46,7 @@ typedef ASTNODE* AST;
 #define ISCHAR_FK	76
 
 #define BASIC_OP_NK      77
-
-#define CONS_NK	8
+#define COLON_NK 8
+#define CONS_NK	9
 
 #endif
