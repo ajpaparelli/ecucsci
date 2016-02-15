@@ -6,7 +6,9 @@ RM     = rm
 CFILES = src/stringtable.c\
          src/teststringtable.c\
          src/lex.yy.c\
-         src/testlexer.c
+         src/testlexer.c\
+	 src/ast.c\
+	 src/testast.c
 
 OFILES = $(patsubst src/%.c,obj/%.o,$(CFILES))
 
@@ -20,11 +22,18 @@ TESTLEXER_OFILES = obj/stringtable.o\
 		   obj/lex.yy.o\
                    obj/testlexer.o
 
+AST_OFILES	= obj/stringtable.o\
+		  obj/ast.o\
+		  obj/testast.o
+
 teststringtable: $(STRINGTABLE_OFILES)
 	$(LINK) -o bin/teststringtable $(STRINGTABLE_OFILES)
 
 testlexer: $(TESTLEXER_OFILES)
 	$(LINK) -o bin/testlexer $(TESTLEXER_OFILES)
+
+testast: $(AST_OFILES)
+	$(LINK) -o bin/testast $(AST_OFILES)
 
 src/lex.yy.c: src/lexer.lex
 	cd src; flex lexer.lex
