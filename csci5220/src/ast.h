@@ -7,6 +7,15 @@
 #define APPLY_NK 	2
 #define ID_NK		3
 #define OP_NK		4
+#define BRANCH_NK	5
+#define FUNC_NK		6
+#define BASIC_FUNC_NK	7
+#define COLON_NK 	8
+#define CONS_NK		9
+#define BOOL_NK		10
+#define PRODUCE_NK	11
+#define PARAM_NK	12
+
 
 #define PLUSOP_OK       40
 #define SUBOP_OK	41
@@ -19,12 +28,10 @@
 #define OROP_OK		48
 #define NOTOP_OK	49
 #define SEMICOL_OK	50
-
-#define IFOP_NK		5
 #define IF_OK		51
 #define ELSE_OK		52
 
-#define BASIC_FUNC_NK	6
+
 #define ISNULL_FK	60
 #define ISFUNC_FK	61
 #define ISINT_FK	62
@@ -41,8 +48,11 @@
 
 
 
-#define COLON_NK 	7
-#define CONS_NK		8
+
+#define BOOL_TRUE	91
+#define BOOL_FALSE	92
+
+#define EMPTYLIST       99
 
 typedef struct astnode {
 	int kind;
@@ -62,11 +72,35 @@ typedef struct astnode {
 ASTNODE;
 
 typedef ASTNODE* AST;
-int charpad;
 
-AST numberNode(int n);
+AST numberNode(const int n);
 
-AST applyOp(AST A, AST B, char opKind);
+AST idNode(const char* s);
 
-void displayAST();
+AST boolNode(const char* s);
+
+AST emptyList();
+
+AST applyNode(AST A, AST B);
+
+AST applyOp(AST A, AST B, char* opKind);
+
+AST applyCOLON(AST A, AST B);
+
+AST applyCONS(AST A, AST B);
+
+AST applyBranch(AST A, AST B, AST C);
+
+AST applyBasicFunc(AST A, const char* FuncKind);
+
+AST applyProd(AST A, AST B);
+
+AST applyFunction(AST A, const int n);
+
+AST applyParam(const int n);
+
+void displayTree(AST A, int indent);
+
+void displayAST(AST A);
+
 #endif
