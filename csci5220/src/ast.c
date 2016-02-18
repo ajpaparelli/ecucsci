@@ -1,9 +1,25 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: ast.c contains all function used in generating
+	abstract syntax trees. Function descriptions will follow to
+	explain each funtion.
+
+	Change Log:
+	2016-02-17: Initial Revision
+
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include "ast.h"
 #include "stringtable.h"
 #include "allocate.h"
 
+/* Return boolean name based off the value of the incoming integer definition */
 char* getBoolName(const int i)
 {
 	if(i == BOOL_TRUE)
@@ -14,6 +30,7 @@ char* getBoolName(const int i)
 		return "\0";
 }
 
+/* Return boolean definition based off the value of the incoming boolean string */
 int getBoolDef(const char* s)
 {
 	if(strcmp(s,"true") == 0)
@@ -24,6 +41,7 @@ int getBoolDef(const char* s)
 		return -1;
 }
 
+/* Return operator name based off the value of the incoming integer definition */
 char* getOperatorName(const int i)
 {
 	if(i == 40)
@@ -50,6 +68,7 @@ char* getOperatorName(const int i)
 		return "\0";
 }
 
+/* Return operator definition based off the value of the incoming operator string */
 int getOperatorDef(const char* c)
 {
 	if(strcmp(c,"+") == 0)
@@ -76,6 +95,7 @@ int getOperatorDef(const char* c)
 		return -1;
 }
 
+/* Return function name based off the value of the incoming integer definition */
 char* getFunctionName(const int n)
 {
 	if(n == ISNULL_FK)
@@ -108,6 +128,7 @@ char* getFunctionName(const int n)
 		return "\0";
 }
 
+/* Return function definition based off the value of the incoming function string */
 int getFunctionDef(const char* s)
 {	
 	if(strcmp(s,"isNull") == 0)
@@ -140,6 +161,9 @@ int getFunctionDef(const char* s)
 		return -1;
 }
 
+
+/* Constructor for the number Node AST */
+
 AST numberNode(const int n)
 {
 	AST t = NEW(ASTNODE);
@@ -147,6 +171,8 @@ AST numberNode(const int n)
 	t->fields.intval = n;
 	return t;
 }
+
+/* Constructor for the ID Node AST, saves ID name in intern */
 
 AST idNode(const char* s)
 {
@@ -156,6 +182,8 @@ AST idNode(const char* s)
 	return t;
 }
 
+/* Constructor for boolean Node AST, accepts const char * (ie: "true"/"false") */
+
 AST boolNode(const char* s)
 {
 	AST t = NEW(ASTNODE);
@@ -164,12 +192,26 @@ AST boolNode(const char* s)
 	return t;
 }
 
+/* Constructor for Parameter Node AST, accepts int n to define associated function number */
+
+AST applyParam(const int n)
+{
+	AST t = NEW(ASTNODE);
+	t->kind = PARAM_NK;
+	t->fields.intval = n;
+	return t;
+}
+
+/* Constructor for an EMPTYLIST AST */
+
 AST emptyList()
 {
 	AST t= NEW(ASTNODE);
 	t->kind = EMPTYLIST;
 	return t;
 }
+
+/* Constructor for apply AST, defines APPLY NK to apply AST A, to AST B */
 
 AST applyNode(AST A, AST B)
 {
@@ -180,8 +222,9 @@ AST applyNode(AST A, AST B)
 	return t;
 }
 
+/* Constructor for apply Op AST, defines OP_NK AST accepts AST A, AST B and char * opkind(ie: "*","/","and", "==" */
 
-AST applyOp(AST A, AST B, char* opKind)
+AST applyOp(AST A, AST B, const char* opKind)
 {
 	AST t = NEW(ASTNODE);
 	t->kind = OP_NK;
@@ -190,6 +233,8 @@ AST applyOp(AST A, AST B, char* opKind)
 	t->fields.subtrees.s2 = B;
 	return t;
 }
+
+/* Constructor for a COLON AST, used to generate a list accepting AST A, and AST B as input. */
 
 AST applyCOLON(AST A, AST B)
 {
@@ -200,6 +245,8 @@ AST applyCOLON(AST A, AST B)
 	return t;
 }
 
+/* Constructor for a CONS AST, used to generate a list accepting AST A, and AST B as input. */
+
 AST applyCONS(AST A, AST B)
 {
 	AST t = NEW(ASTNODE);
@@ -208,6 +255,12 @@ AST applyCONS(AST A, AST B)
 	t->fields.subtrees.s2 = B;
 	return t;
 }
+
+/* Constructor for a Branch AST, used to generate a list accepting AST A, and AST B, AST C as input. 
+	AST A: represents the if conditional
+	AST B: represents the then action
+	AST C: represents the else result if applicable.
+*/
 
 AST applyBranch(AST A, AST B, AST C)
 {
@@ -219,6 +272,8 @@ AST applyBranch(AST A, AST B, AST C)
 	return t;
 }
 
+/* Constructor for a basic function AST, applies AST A to the function defined by const char* FuncKind. */
+
 AST applyBasicFunc(AST A, const char* FuncKind)
 {
 	AST t = NEW(ASTNODE);
@@ -227,6 +282,8 @@ AST applyBasicFunc(AST A, const char* FuncKind)
 	t->fields.subtrees.s1 = A;
 	return t;
 }
+
+/* Constructor for a produce AST */
 
 AST applyProd(AST A, AST B)
 {
@@ -237,6 +294,8 @@ AST applyProd(AST A, AST B)
 	return t;
 }
 
+/* Constructor for a defined function AST, assigns AST A to the function # defined by const int n. */
+
 AST applyFunction(AST A, const int n)
 {
 	AST t = NEW(ASTNODE);
@@ -246,18 +305,11 @@ AST applyFunction(AST A, const int n)
 	return t;
 }
 
-AST applyParam(const int n)
-{
-	AST t = NEW(ASTNODE);
-	t->kind = PARAM_NK;
-	t->fields.intval = n;
-	return t;
-}
+/* Function to display AST tree A, indent defines the level that the tree is at to define display indent */
 
 void displayTree(AST A, int indent)
 {
 	int curindent = indent;
-	//printf("Indent: %d \n", curindent);
 	if(A->kind == EMPTYLIST)
 		printf("%*s%s \n",curindent,"","[]");
 	else if(A->kind == NUMBER_NK)
@@ -296,6 +348,9 @@ void displayTree(AST A, int indent)
 			displayTree(A->fields.subtrees.s3, curindent+2);
 	}
 }
+
+
+/* Main function to display AST, starts at indent 0 then calls DisplayTree function */
 
 void displayAST(AST A)
 {

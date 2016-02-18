@@ -1,3 +1,18 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: ast.c contains all function used in generating
+	abstract syntax trees. Function descriptions will follow to
+	explain each funtion.
+
+	Change Log:
+	2016-02-17: Initial Revision
+
+*/
+
 #ifndef AST_H_
 #define AST_H_
 
@@ -83,7 +98,7 @@ AST emptyList();
 
 AST applyNode(AST A, AST B);
 
-AST applyOp(AST A, AST B, char* opKind);
+AST applyOp(AST A, AST B, const char* opKind);
 
 AST applyCOLON(AST A, AST B);
 
