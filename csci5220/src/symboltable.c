@@ -8,7 +8,12 @@ HASHNODE* symTable[TABLE_SIZE];
 
 int hashify(char* key)
 {
-	return -1;
+	unsigned int hash = 0;
+	for(int i = 0; key[i] != '\0'; i++)
+	{
+		hash = 31 * hash + key[i];
+	}
+	return hash % TABLE_SIZE;
 }
 
 int hasFunc(char* key)
@@ -27,7 +32,6 @@ int hasFunc(char* key)
 		else
 			hn = hn->next;
 	}
-	
 	return hasKey;
 }
 
@@ -47,7 +51,6 @@ AST getTree(char* key)
 		else
 			hn = hn->next;
 	}
-	
 	return tree;
 }
 
