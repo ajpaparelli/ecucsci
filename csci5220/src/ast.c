@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "ast.h"
 #include "stringtable.h"
 #include "allocate.h"
@@ -354,5 +355,6 @@ void displayTree(AST A, int indent)
 
 void displayAST(AST A)
 {
-	displayTree(A,0);
+	if(A != NULL)	
+		displayTree(A,0);
 }	

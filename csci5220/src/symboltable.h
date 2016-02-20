@@ -10,7 +10,7 @@ typedef struct hashnode {
 	char* funcName;
 	AST astTree;
 	struct hashnode* next;
-} HASHNODE
+} HASHNODE;
 
 int hashify(char* key);
 

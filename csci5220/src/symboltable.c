@@ -9,7 +9,8 @@ HASHNODE* symTable[TABLE_SIZE];
 int hashify(char* key)
 {
 	unsigned int hash = 0;
-	for(int i = 0; key[i] != '\0'; i++)
+        int i;
+	for(i = 0; key[i] != '\0'; i++)
 	{
 		hash = 31 * hash + key[i];
 	}
@@ -28,7 +29,10 @@ int hasFunc(char* key)
 	while(hn != NULL)
 	{
 		if(strcmp(key,hn->funcName) == 0)
+		{
 			hasKey = 1;
+			break;
+		}
 		else
 			hn = hn->next;
 	}
@@ -47,7 +51,10 @@ AST getTree(char* key)
 	while(hn != NULL)
 	{
 		if(strcmp(key,hn->funcName) == 0)
+		{
 			tree = hn->astTree;
+			break;
+		}
 		else
 			hn = hn->next;
 	}
@@ -59,11 +66,12 @@ void insertTree(char* key, AST A)
 	int index;
 	HASHNODE* hn;
 	index = hashify(key);
-
+	
 	if(symTable[index] == NULL)
 	{
-		hn = NEW(HASHNODE);
-		strcpy(hn->funcName,key);
+		
+		hn = NEW(HASHNODE);	
+		hn->funcName = key;
 		hn->astTree = A;
 		hn->next = NULL;  
 		symTable[index] = hn;
