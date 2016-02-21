@@ -28,7 +28,7 @@ char* getBoolName(const int i)
 	else if(i == BOOL_FALSE)
 		return "false";
 	else	
-		return "\0";
+		return NULL;
 }
 
 /* Return boolean definition based off the value of the incoming boolean string */
@@ -45,28 +45,28 @@ int getBoolDef(const char* s)
 /* Return operator name based off the value of the incoming integer definition */
 char* getOperatorName(const int i)
 {
-	if(i == 40)
+	if(i == PLUSOP_OK)
 		return "+";
-	else if(i == 41)
+	else if(i == SUBOP_OK)
 		return "-";
-	else if(i == 42)
+	else if(i == MULTOP_OK)
 		return "*";
-	else if(i == 43)
+	else if(i == DIVOP_OK)
 		return "/";
-	else if(i == 44)
+	else if(i == GT_OK)
 		return ">";
-	else if(i == 45)
+	else if(i == LT_OK)
 		return "<";
-	else if(i == 46)
+	else if(i == EQ_OK)
 		return "==";
-	else if(i == 47)
+	else if(i == ANDOP_OK)
 		return "and";
-	else if(i == 48)
+	else if(i == OROP_OK)
 		return "or";
-	else if(i == 49)
+	else if(i == NOTOP_OK)
 		return "not";
 	else
-		return "\0";
+		return NULL;
 }
 
 /* Return operator definition based off the value of the incoming operator string */
@@ -126,7 +126,7 @@ char* getFunctionName(const int n)
 	else if(n == READI_FK)
 		return "readInt";
 	else
-		return "\0";
+		return NULL;
 }
 
 /* Return function definition based off the value of the incoming function string */
@@ -341,11 +341,11 @@ void displayTree(AST A, int indent)
 			printf("%*sFUNCTION(%d) \n",curindent,"",A->extra);
 
 
-		if(A->fields.subtrees.s1 != '\0')
+		if(A->fields.subtrees.s1 != NULL)
 			displayTree(A->fields.subtrees.s1, curindent+2);
-		if(A->fields.subtrees.s2 != '\0')
+		if(A->fields.subtrees.s2 != NULL)
 			displayTree(A->fields.subtrees.s2, curindent+2);
-		if(A->fields.subtrees.s3 != '\0')
+		if(A->fields.subtrees.s3 != NULL)
 			displayTree(A->fields.subtrees.s3, curindent+2);
 	}
 }
