@@ -8,6 +8,7 @@
 
 int main(int argc, char *argv[])
 {
+	linenum = 0;
   if(argc == 2) {
     /*----------------------------------*
      * Flex reads from open file yyin.  *
@@ -33,13 +34,11 @@ int main(int argc, char *argv[])
       else if(tok == TOK_INTEGER) {
 	printf("INTEGER, value = %d\n", yylval.ival);
       }
-      else if(tok > 255) {
-        printf("Token %d, value = %s\n",tok,yylval.str);
-      }
       else {
-	printf("Token %d\n", tok);
+	printf("Token %d (\"%s\")\n", tok, yylval.str);
       }
     }
   }
+	printf("Total lines: %d\n",linenum);
 	return 0;
 }
