@@ -41,5 +41,6 @@ YYSTYPE;
 #define TOK_ID 272
 #define TOK_INTEGER 273
 #define TOK_THEN 274
+#define TOK_CHARCONST 275
 
 #endif

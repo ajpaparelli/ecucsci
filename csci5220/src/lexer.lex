@@ -32,6 +32,11 @@ number  {digit}+
 
 [ \t] 		{}
 
+
+\'({letter}|\\\\|\\n)\' {yylval.str = intern(yytext);
+		 return TOK_CHARCONST;
+		}
+
 "//".*\n|"\n"	{linenum++;
 		}
 
@@ -66,6 +71,8 @@ true|false      {yylval.str = yytext;
 "=="|">"|"<"	{yylval.str = yytext;
 		 return TOK_RELOP;
 		}
+
+
 
 def     	{yylval.str = yytext;
 		 return TOK_DEF;
