@@ -4,7 +4,7 @@
 #include "allocate.h"
 #include "ast.h"
 
-#define TABLE_SIZE 2000
+#define TABLE_SIZE 2
 
 typedef struct hashnode {
 	char* funcName;
@@ -18,6 +18,8 @@ typedef HASHNODE* HASH;
 int hashify(char* key);
 
 int hasFunc(char* key);
+
+void displayContents();
 
 AST getTree(char* key);
 

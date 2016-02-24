@@ -1,9 +1,41 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "ast.h"
 
 int main() 
 {
 	
+	AST i = numberNode(10);
+	AST y = NULL;
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+
+	i = idNode("Apple");
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+	
+	i = boolNode("true");
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+
+	i = boolNode("false");
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+
+	i = applyParam(30);
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+
+	i = emptyList();
+	displayAST(i);
+	printf("\n\n");
+	free(i);
+
 	AST fn1 = numberNode(5);
 	AST fn2 = numberNode(4);
 	AST fn3 = applyOp(fn1,fn2,"+");
@@ -83,7 +115,10 @@ int main()
 	AST fn51 = applyFunction(fn50,3);
 	AST fn52 = applyFunction(fn51,2);
 	AST fn53 = applyFunction(fn52,1);
-	displayAST(fn53);	
+	displayAST(fn53);
+
+
+	displayAST(y);
 
 return 0;
 }

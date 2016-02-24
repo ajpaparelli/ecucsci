@@ -64,54 +64,76 @@ AST getTree(char* key)
 	return tree;
 }
 
+void displayContents()
+{
+	int i = 0;
+	if(symTable != NULL)
+	{
+		for(i = 0; i < tableSize; i = i + 1)
+		{
+			HASH hn = symTable[i];
+			while(hn != NULL)
+			{
+				printf("%d: %s\n",i, hn->funcName);
+				hn = hn->next;
+			}
+		}
+	}
+}
+
 void rehash()
 {
 	int i = 0;
 	int index;
 	tableSize = tableSize * 2;
+	printf("Table approaching capacity need to rehash to size %d\n",tableSize);
 	HASH hn;
 	HASH* tmpTable = symTable;
 	HASH* newTable = NEWARRAY(HASH, tableSize);
-	
+
 	for(i = 0; i < prevSize; i = i + 1)
 	{
 		HASH hnOLD = tmpTable[i];
-		while(tmpTable[i])
+		while(hnOLD != NULL)
 		{
 			index = hashify(hnOLD->funcName);
-
 			if(newTable[index] == NULL)
-			{	
-				hn = new(HASHNODE);
+			{				
+				hn = NEW(HASHNODE);
 				hn->funcName = hnOLD->funcName;
-				hn->tree = hnOLD->tree;
-				hn->next = NULL;			
+				hn->astTree = hnOLD->astTree;
+				hn->next = NULL;	
 				newTable[index] = hn;
 			}
 			else
 			{
-				hn = symTable[index];
+				hn = newTable[index];
 				while(hn->next != NULL)
 					hn = hn->next;
 			
 				hn->next = NEW(HASHNODE);
 			
 				hn = hn->next;
-				hn->funcName, hnOLD->funcName;
-				hn->astTree = hnOLD->A;
+				hn->funcName = hnOLD->funcName;
+				hn->astTree = hnOLD->astTree;
 				hn->next = NULL;	
-			} 	
+			} 
+			hnOLD = hnOLD->next;
 		}
-	}	
+	}
+	
+	symTable = newTable;
+	free(tmpTable);	
 }
 
 void insertTree(char* key, AST A)
 {
 	if(symTable == NULL)
 	{
-		symTable = NEWARRAY(HASH,tableSize);
-	}
 	
+		symTable = NEWARRAY(HASH,tableSize);
+	}	
+
 	if(((items * 1.0)/(tableSize*1.0)) > 0.7)
 	{
 		prevSize = tableSize;
@@ -124,9 +146,8 @@ void insertTree(char* key, AST A)
 	
 	if(symTable[index] == NULL)
 	{
-		
 		hn = NEW(HASHNODE);	
-		strcpy(hn->funcName, key);
+		hn->funcName = key;
 		hn->astTree = A;
 		hn->next = NULL;  
 		symTable[index] = hn;
@@ -140,9 +161,10 @@ void insertTree(char* key, AST A)
 		hn->next = NEW(HASHNODE);
 		
 		hn = hn->next;
-		strcpy(hn->funcName,key);
+		hn->funcName = key;
 		hn->astTree = A;
 		hn->next = NULL;
 	}
+	printf("Added %s\n",key);
 	items = items + 1;		
 }
