@@ -18,6 +18,7 @@
 
 typedef union {
   const char* str;
+  const char charconst;
   int   ival;
 } 
 YYSTYPE;

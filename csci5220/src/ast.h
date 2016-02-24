@@ -30,7 +30,7 @@
 #define BOOL_NK		10
 #define PRODUCE_NK	11
 #define PARAM_NK	12
-
+#define CHARCONST_NK	13
 
 #define PLUSOP_OK       40
 #define SUBOP_OK	41
@@ -91,6 +91,8 @@ typedef ASTNODE* AST;
 AST numberNode(const int n);
 
 AST idNode(const char* s);
+
+AST charNode(const char* s);
 
 AST boolNode(const char* s);
 

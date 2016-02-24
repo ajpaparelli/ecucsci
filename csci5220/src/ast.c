@@ -183,6 +183,16 @@ AST idNode(const char* s)
 	return t;
 }
 
+/* Constructor for the Const Char AST, saves Char name in intern */
+
+AST charNode(const char* s)
+{
+	AST t = NEW(ASTNODE);
+	t->kind = CHARCONST_NK;
+	t->fields.stringval = intern(s);
+	return t;
+}
+
 /* Constructor for boolean Node AST, accepts const char * (ie: "true"/"false") */
 
 AST boolNode(const char* s)

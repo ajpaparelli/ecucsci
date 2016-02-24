@@ -12,6 +12,9 @@ typedef struct hashnode {
 	struct hashnode* next;
 } HASHNODE;
 
+typedef HASHNODE* HASH;
+
+
 int hashify(char* key);
 
 int hasFunc(char* key);

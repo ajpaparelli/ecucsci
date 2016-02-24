@@ -4,7 +4,10 @@
 #include "symboltable.h"
 #include "ast.h"
 
-HASHNODE* symTable[TABLE_SIZE];
+HASH* symTable;
+int tableSize = TABLE_SIZE;
+int prevSize = 0;
+int items = 0;
 
 int hashify(char* key)
 {
@@ -14,13 +17,13 @@ int hashify(char* key)
 	{
 		hash = 31 * hash + key[i];
 	}
-	return hash % TABLE_SIZE;
+	return hash % tableSize;
 }
 
 int hasFunc(char* key)
 {
 	int index, hasKey;
-	HASHNODE* hn;
+	HASH hn;
 	
 
 	hasKey = -1;
@@ -42,7 +45,7 @@ int hasFunc(char* key)
 AST getTree(char* key)
 {
 	int index;
-	HASHNODE* hn;
+	HASH hn;
 	AST tree;
 
 	tree = NULL;
@@ -61,17 +64,69 @@ AST getTree(char* key)
 	return tree;
 }
 
+void rehash()
+{
+	int i = 0;
+	int index;
+	tableSize = tableSize * 2;
+	HASH hn;
+	HASH* tmpTable = symTable;
+	HASH* newTable = NEWARRAY(HASH, tableSize);
+	
+	for(i = 0; i < prevSize; i = i + 1)
+	{
+		HASH hnOLD = tmpTable[i];
+		while(tmpTable[i])
+		{
+			index = hashify(hnOLD->funcName);
+
+			if(newTable[index] == NULL)
+			{	
+				hn = new(HASHNODE);
+				hn->funcName = hnOLD->funcName;
+				hn->tree = hnOLD->tree;
+				hn->next = NULL;			
+				newTable[index] = hn;
+			}
+			else
+			{
+				hn = symTable[index];
+				while(hn->next != NULL)
+					hn = hn->next;
+			
+				hn->next = NEW(HASHNODE);
+			
+				hn = hn->next;
+				hn->funcName, hnOLD->funcName;
+				hn->astTree = hnOLD->A;
+				hn->next = NULL;	
+			} 	
+		}
+	}	
+}
+
 void insertTree(char* key, AST A)
 {
+	if(symTable == NULL)
+	{
+		symTable = NEWARRAY(HASH,tableSize);
+	}
+	
+	if(((items * 1.0)/(tableSize*1.0)) > 0.7)
+	{
+		prevSize = tableSize;
+		rehash();
+	}
+
 	int index;
-	HASHNODE* hn;
+	HASH hn;
 	index = hashify(key);
 	
 	if(symTable[index] == NULL)
 	{
 		
 		hn = NEW(HASHNODE);	
-		hn->funcName = key;
+		strcpy(hn->funcName, key);
 		hn->astTree = A;
 		hn->next = NULL;  
 		symTable[index] = hn;
@@ -88,5 +143,6 @@ void insertTree(char* key, AST A)
 		strcpy(hn->funcName,key);
 		hn->astTree = A;
 		hn->next = NULL;
-	}		
+	}
+	items = items + 1;		
 }

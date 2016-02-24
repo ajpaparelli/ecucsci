@@ -32,9 +32,8 @@ number  {digit}+
 
 [ \t] 		{}
 
-
-\'({letter}|\\\\|\\n)\' {yylval.str = intern(yytext);
-		 return TOK_CHARCONST;
+\'(.|\\\\|\\n)\' {yylval.str = intern(yytext);
+		  return TOK_CHARCONST;
 		}
 
 "//".*\n|"\n"	{linenum++;
