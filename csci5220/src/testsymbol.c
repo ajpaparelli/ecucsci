@@ -2,6 +2,28 @@
 #include "ast.h"
 #include "symboltable.h"
 
+char *randstring(size_t length) {
+
+    static char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,.-#'?!";        
+    char *randomString = NULL;
+	int n;
+
+    if (length) {
+        randomString = malloc(sizeof(char) * (length +1));
+
+        if (randomString) {            
+            for (n = 0;n < length;n = n + 1) {            
+                int key = rand() % (int)(sizeof(charset) -1);
+                randomString[n] = charset[key];
+            }
+
+            randomString[length] = '\0';
+        }
+    }
+
+    return randomString;
+}
+
 int main()
 {
 
@@ -9,29 +31,45 @@ AST fn1 = applyParam(1);
 AST fn2 = applyParam(1);
 AST fn3 = applyOp(fn1, fn2, "+");
 AST fn4 = applyFunction(fn3, 1);
-/*if(hasFunc("test") == 1) 
-	printf("How did that get there?\n");*/
 
-insertTree("test",fn4);
+int i;
+
+for(i = 0; i < 5000; i = i + 1)
+{
+	char *str = randstring((i%10)+5);
+	if(insertTree(str,fn4) == -1)
+	{
+		printf("Table already contains function %s\n", str);
+	}	
+}
+displayContents();
+deleteTable();
+
+	if(insertTree("test",fn4) == -1)
+	{
+		printf("Table already contains function test\n");
+	}
+	if(insertTree("test",fn4) == -1)
+	{
+		printf("Table already contains function test\n");
+	}
+
 insertTree("main",fn4);
-displayContents();
 insertTree("slope",fn4);
-displayContents();
 insertTree("jupiter",fn4);
 insertTree("mars",fn4);
 insertTree("apple",fn4);
-displayContents();
 insertTree("banana",fn3);
 displayContents();
 
-if(hasFunc("test") == 1) 
+if(hasSymbol("test") == 1) 
 {
 	AST A = getTree("test");
 	
 	displayAST(A);
 }
 
-if(hasFunc("apple") == 1) 
+if(hasSymbol("apple") == 1) 
 {
 	printf("Found apple\n");
 	AST A = getTree("apple");
@@ -39,7 +77,7 @@ if(hasFunc("apple") == 1)
 	displayAST(A);
 }
 
-if(hasFunc("mars") == 1) 
+if(hasSymbol("mars") == 1) 
 {
 	printf("Found mars\n");
 
@@ -48,7 +86,7 @@ if(hasFunc("mars") == 1)
 	displayAST(A);
 }
 
-if(hasFunc("banana") == 1) 
+if(hasSymbol("banana") == 1) 
 {
 	printf("Found banana\n");
 
@@ -57,6 +95,17 @@ if(hasFunc("banana") == 1)
 	displayAST(A);
 }
 
+deleteTable();
+displayContents();
 
+insertTree("main",fn4);
+insertTree("slope",fn4);
+insertTree("jupiter",fn4);
+insertTree("mars",fn4);
+insertTree("apple",fn4);
+insertTree("banana",fn3);
+
+displayContents();
+deleteTable();
 return 0;
 }
