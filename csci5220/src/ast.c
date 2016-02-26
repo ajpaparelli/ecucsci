@@ -325,7 +325,7 @@ void displayTree(AST A, int indent)
 		printf("%*s%s \n",curindent,"","[]");
 	else if(A->kind == NUMBER_NK)
 		printf("%*s%d \n",curindent,"",A->fields.intval);
-	else if((A->kind == ID_NK) || (A->kind == CHARCONST_NL))
+	else if((A->kind == ID_NK) || (A->kind == CHARCONST_NK))
 		printf("%*s%s \n",curindent,"",A->fields.stringval);
 	else if(A->kind == BOOL_NK)
 		printf("%*s%s \n",curindent,"",getBoolName(A->extra));
