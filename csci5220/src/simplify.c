@@ -30,6 +30,10 @@ AST simplify(AST t)
 					int x = s->subtrees.intval + r->subtrees.intval;
 					return numberNODE(x);
 				}
+				else
+				{
+					return errorNODE("Operand is not the correct type, must be an integer");
+				}
 			}
 			else if(t->extra = SUBOP_OK)
 			{
