@@ -111,6 +111,8 @@ char* getFunctionName(const int n)
 		return "isAction";
 	else if(n == ISCHAR_FK)
 		return "isChar";
+	else if(n == ISLIST_FK)
+		return "isList";
 	else if(n == HEAD_FK)
 		return "head";
 	else if(n == TAIL_FK)
@@ -146,6 +148,8 @@ int getFunctionDef(const char* s)
 		return ISCHAR_FK;
 	else if(strcmp(s,"head") == 0)
 		return HEAD_FK;
+	else if(strcmp(s,"isList") == 0)
+		return ISLIST_FK;
 	else if(strcmp(s,"tail") == 0)
 		return TAIL_FK;
 	else if(strcmp(s,"print") == 0)

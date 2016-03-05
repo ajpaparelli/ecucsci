@@ -17,7 +17,7 @@
 #define AST_H_
 
 
-
+//
 #define NUMBER_NK	1
 #define APPLY_NK 	2
 #define ID_NK		3
@@ -31,7 +31,10 @@
 #define PRODUCE_NK	11
 #define PARAM_NK	12
 #define CHARCONST_NK	13
+#define ERROR_NK	98
+#define EMPTYLIST       99
 
+//Op definitions
 #define PLUSOP_OK       40
 #define SUBOP_OK	41
 #define MULTOP_OK	42
@@ -46,7 +49,7 @@
 #define IF_OK		51
 #define ELSE_OK		52
 
-
+//Basic Function Defs
 #define ISNULL_FK	60
 #define ISFUNC_FK	61
 #define ISINT_FK	62
@@ -60,14 +63,13 @@
 #define PROD_FK		70
 #define READC_FK	71
 #define READI_FK	72
-
-
+#define ISLIST_FK	73
 
 
 #define BOOL_TRUE	91
 #define BOOL_FALSE	92
 
-#define EMPTYLIST       99
+
 
 typedef struct astnode {
 	int kind;
