@@ -24,7 +24,10 @@ AST buildTail(AST t)
 	if(s->fields.subtrees.s1->kind != CONS_NK)
 		return s->fields.subtrees.s2;
 	else
+	{
 		s->fields.subtrees.s1 = buildTail(s->fields.subtrees.s1);		
+		return s->fields.subtrees.s1;
+	}
 }
 
 int paramID[2000];
