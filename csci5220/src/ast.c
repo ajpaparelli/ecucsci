@@ -226,6 +226,14 @@ AST emptyList()
 	return t;
 }
 
+AST errorNode(const char* s)
+{
+	AST t = NEW(ASTNODE);
+	t->kind = ERROR_NK;
+	t->fields.stringval = intern(s);
+	return t;
+}
+
 /* Constructor for apply AST, defines APPLY NK to apply AST A, to AST B */
 
 AST applyNode(AST A, AST B)

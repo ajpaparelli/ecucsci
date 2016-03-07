@@ -3,6 +3,14 @@
 
 #include "ast.h"
 
+AST getHead(AST t);
+
+AST buildTail(AST t);
+
 AST simplify(AST t);
 
-#endif SIMPLIFY_H_
+AST copyTree(AST r, AST s, int x);
+
+AST applyValue(AST r, AST s);
+
+#endif

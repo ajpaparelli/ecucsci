@@ -1,6 +1,6 @@
 CC     = gcc
 LINK   = gcc
-CFLAGS = -Wall
+CFLAGS = -g -Wall
 RM     = rm
 
 CFILES = src/stringtable.c\
@@ -10,7 +10,9 @@ CFILES = src/stringtable.c\
 	 src/ast.c\
 	 src/testast.c\
 	 src/symboltable.c\
-	 src/testsymbol.c
+	 src/testsymbol.c\
+	 src/simplify.c\
+	 src/testsimp.c
 
 OFILES = $(patsubst src/%.c,obj/%.o,$(CFILES))
 
@@ -32,6 +34,12 @@ SYM_OFILES	= obj/stringtable.o\
 		  obj/ast.o\
 		  obj/symboltable.o\
 		  obj/testsymbol.o
+		  
+SIMP_OFILES	= obj/stringtable.o\
+		  obj/ast.o\
+		  obj/symboltable.o\
+		  obj/simplify.o\
+		  obj/testsimp.o	  
 
 teststringtable: $(STRINGTABLE_OFILES)
 	$(LINK) -o bin/teststringtable $(STRINGTABLE_OFILES)
@@ -44,6 +52,9 @@ testast: $(AST_OFILES)
 
 testsymbol: $(SYM_OFILES)
 	$(LINK) -o bin/testsymbol $(SYM_OFILES)
+	
+testsimp: $(SIMP_OFILES)
+	$(LINK) -o bin/testsimp $(SIMP_OFILES)
 
 src/lex.yy.c: src/lexer.lex
 	cd src; flex lexer.lex

@@ -100,6 +100,8 @@ AST boolNode(const char* s);
 
 AST emptyList();
 
+AST errorNode(const char* s);
+
 AST applyNode(AST A, AST B);
 
 AST applyOp(AST A, AST B, const char* opKind);
