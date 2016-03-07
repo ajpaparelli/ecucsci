@@ -17,8 +17,14 @@ AST getHead(AST t)
 
 AST buildTail(AST t)
 {
-if(t->fields.subtrees.s1->kind != CONS_NK)
-	return t->fields.subtrees.s2;
+	AST s = NEW(ASTNODE);
+	s->kind = t->kind;
+	s->fields.subtrees.s1 = t->fields.subtrees.s1;
+	s->fields.subtrees.s2 = t->fields.subtrees.s2;
+	if(s->fields.subtrees.s1->kind != CONS_NK)
+		return s->fields.subtrees.s2;
+	else
+		s->fields.subtrees.s1 = buildTail(s->fields.subtrees.s1);		
 }
 
 int paramID[2000];
