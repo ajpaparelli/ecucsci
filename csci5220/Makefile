@@ -12,7 +12,9 @@ CFILES = src/stringtable.c\
 	 src/symboltable.c\
 	 src/testsymbol.c\
 	 src/simplify.c\
-	 src/testsimp.c
+	 src/testsimp.c\
+	 src/interpreter.c\
+	 src/testintp.c
 
 OFILES = $(patsubst src/%.c,obj/%.o,$(CFILES))
 
@@ -39,7 +41,14 @@ SIMP_OFILES	= obj/stringtable.o\
 		  obj/ast.o\
 		  obj/symboltable.o\
 		  obj/simplify.o\
-		  obj/testsimp.o	  
+		  obj/testsimp.o
+
+INTP_OFILES	= obj/stringtable.o\
+		  obj/ast.o\
+		  obj/symboltable.o\
+		  obj/simplify.o\
+		  obj/interpreter.o\
+		  obj/testintp.o	  
 
 teststringtable: $(STRINGTABLE_OFILES)
 	$(LINK) -o bin/teststringtable $(STRINGTABLE_OFILES)
@@ -55,6 +64,9 @@ testsymbol: $(SYM_OFILES)
 	
 testsimp: $(SIMP_OFILES)
 	$(LINK) -o bin/testsimp $(SIMP_OFILES)
+
+testintp: $(INTP_OFILES)
+	$(LINK) -o bin/testintp $(INTP_OFILES)
 
 src/lex.yy.c: src/lexer.lex
 	cd src; flex lexer.lex
