@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "symboltable.h"
 #include "ast.h"
 #include "simplify.h"
 
@@ -32,7 +33,7 @@ void printChar(AST r)
 
 AST performAction(AST t)
 {
-	AST s = simplify(t);
+	AST s = t;
 	if(s->kind == ACTION_NK)
 	{
 		AST x = performAction(s->fields.subtrees.s1);
@@ -89,4 +90,32 @@ AST performAction(AST t)
 		return errorNode("No action specified");
 	}
 
+}
+
+int interpreter(void)
+{
+	AST M = getTree("main");
+	AST R = simplify(M);
+	
+	if((R->kind == ACTION_NK) ||
+	   ((R->kind == BASIC_FUNC_NK) &&
+	   	((R->extra == PRILST_FK) ||
+		(R->extra == PRINT_FK) ||
+		(R->extra == PROD_FK) ||
+		(R->extra == READI_FK) ||
+		(R->extra == READC_FK))))
+	{
+		AST ret = performAction(R);
+		if(ret->kind == ERROR_NK)
+		{
+			return 1;
+		}
+		else if(ret->kind != EMPTYLIST)
+		{
+			displayAST(ret);
+		}
+	} 
+	else
+		displayAST(R);
+	return 0;
 }

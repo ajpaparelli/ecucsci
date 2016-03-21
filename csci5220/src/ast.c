@@ -219,7 +219,7 @@ AST applyParam(const int n)
 
 /* Constructor for an EMPTYLIST AST */
 
-AST emptyList()
+AST emptyList(void)
 {
 	AST t= NEW(ASTNODE);
 	t->kind = EMPTYLIST;
@@ -306,12 +306,12 @@ AST applyBasicFunc(AST A, const char* FuncKind)
 	return t;
 }
 
-/* Constructor for a produce AST */
+/* Constructor for a Action AST */
 
-AST applyProd(AST A, AST B)
+AST applyAction(AST A, AST B)
 {
 	AST t = NEW(ASTNODE);
-	t->kind = PRODUCE_NK;
+	t->kind = ACTION_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;
 	return t;
@@ -319,13 +319,47 @@ AST applyProd(AST A, AST B)
 
 /* Constructor for a defined function AST, assigns AST A to the function # defined by const int n. */
 
-AST applyFunction(AST A, const int n)
+AST applyFunction(AST A, const int n, const char* s)
 {
 	AST t = NEW(ASTNODE);
 	t->kind = FUNC_NK;
 	t->extra = n;
 	t->fields.subtrees.s1 = A;
+	replaceID(s, n, t->fields.subtrees.s1);
 	return t;
+}
+
+AST replaceID(const char* s, const int n, AST E)
+{
+	if(E->kind == ID_NK) 
+	{
+		if(strcmp(s,E->fields.stringval) == 0)
+			return applyParam(n);
+		else
+			return E;
+	}
+	else if((E->kind == BASIC_FUNC_NK) || (E->kind == FUNC_NK))
+	{		
+		E->fields.subtrees.s1 = replaceID(s, n, E->fields.subtrees.s1);
+		return E;
+	}
+	else if((E->kind == COLON_NK) || (E->kind == OP_NK) || (E->kind == CONS_NK) ||
+		(E->kind == APPLY_NK) || (E->kind == ACTION_NK))
+	{
+		E->fields.subtrees.s1 = replaceID(s, n, E->fields.subtrees.s1);
+		E->fields.subtrees.s2 = replaceID(s, n, E->fields.subtrees.s2);
+		return E;
+	}
+	else if(E->kind == BRANCH_NK)
+	{
+		E->fields.subtrees.s1 = replaceID(s, n, E->fields.subtrees.s1);
+		E->fields.subtrees.s2 = replaceID(s, n, E->fields.subtrees.s2);
+		E->fields.subtrees.s3 = replaceID(s, n, E->fields.subtrees.s3);
+		return E;
+	}
+	else
+		return E;
+		
 }
 
 /* Function to display AST tree A, indent defines the level that the tree is at to define display indent */
@@ -355,7 +389,7 @@ void displayTree(AST A, int indent)
 			printf("%*s%s \n",curindent,"",getFunctionName(A->extra));
 		else if(A->kind == APPLY_NK)
 			printf("%*s%s \n",curindent,"","Apply");
-		else if(A->kind == PRODUCE_NK)
+		else if(A->kind == ACTION_NK)
 			printf("%*s%s \n",curindent,"","~>");
 		else if(A->kind == BRANCH_NK)
 			printf("%*s%s \n",curindent,"","Branch");

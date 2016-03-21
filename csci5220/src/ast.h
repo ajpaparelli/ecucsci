@@ -28,7 +28,7 @@
 #define COLON_NK 	8
 #define CONS_NK		9
 #define BOOL_NK		10
-#define PRODUCE_NK	11
+#define ACTION_NK	11
 #define PARAM_NK	12
 #define CHARCONST_NK	13
 #define ERROR_NK	98
@@ -98,7 +98,7 @@ AST charNode(const char* s);
 
 AST boolNode(const char* s);
 
-AST emptyList();
+AST emptyList(void);
 
 AST errorNode(const char* s);
 
@@ -114,11 +114,13 @@ AST applyBranch(AST A, AST B, AST C);
 
 AST applyBasicFunc(AST A, const char* FuncKind);
 
-AST applyProd(AST A, AST B);
+AST applyAction(AST A, AST B);
 
-AST applyFunction(AST A, const int n);
+AST applyFunction(AST A, const int n, const char* s);
 
 AST applyParam(const int n);
+
+AST replaceID(const char* s, const int n, AST E);
 
 void displayTree(AST A, int indent);
 

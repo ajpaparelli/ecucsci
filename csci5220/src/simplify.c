@@ -21,18 +21,91 @@ AST buildTail(AST t)
 	s->kind = t->kind;
 	s->fields.subtrees.s1 = t->fields.subtrees.s1;
 	s->fields.subtrees.s2 = t->fields.subtrees.s2;
-	if(s->fields.subtrees.s1->kind != CONS_NK)
+	if(t->fields.subtrees.s1->kind != CONS_NK)
 		return s->fields.subtrees.s2;
 	else
 	{
 		s->fields.subtrees.s1 = buildTail(s->fields.subtrees.s1);		
-		return s->fields.subtrees.s1;
+		return s;
 	}
 }
 
-int paramID[2000];
+VL headptr;
+
+int getVal(int x)
+{
+	VL tmpptr = headptr;
+	if(tmpptr == NULL)
+		return -1;
+	else
+	{
+		while(tmpptr != NULL)
+		{
+			if(tmpptr->oldval == x)
+				return tmpptr->newval;
+			else
+				tmpptr = tmpptr->next;
+		}
+		return -1;
+	}
+}
+
+VL newValNode(VL inPtr, int val)
+{
+	VL vn = NEW(VALNODE);
+	vn->next = inPtr;
+	vn->oldval = val;
+	vn->newval = val + 1000;
+	return vn;
+}
+
+void scanTree(AST r)
+{
+	if(r != NULL)
+	{
+		if(r->kind == FUNC_NK)
+		{
+			if(getVal(r->extra) == -1)
+			{
+				headptr = newValNode(headptr, r->extra);
+				scanTree(r->fields.subtrees.s1);
+			}
+			else
+			{
+				//Error duplicate function
+			}
+		}
+		else if((r->kind == BASIC_FUNC_NK) || (r->kind == OP_NK) || (r->kind == APPLY_NK)
+			|| (r->kind == BRANCH_NK) || (r->kind == ACTION_NK) || (r->kind == COLON_NK)
+			|| (r->kind == CONS_NK))
+		{
+			scanTree(r->fields.subtrees.s1);
+			scanTree(r->fields.subtrees.s2);
+			scanTree(r->fields.subtrees.s3);	
+		}
+	}
+}
+
+void deleteValList(VL ptr)
+{
+	if(ptr != NULL)
+	{
+		deleteValList(ptr->next);
+		free(ptr);
+	}
+}	
 
 AST copyTree(AST r, AST s, int x)
+{
+	headptr = NULL;
+	scanTree(r);
+	AST t = copyAST(r,s,x);
+	deleteValList(headptr);
+	headptr = NULL;
+	return t;
+}
+
+AST copyAST(AST r, AST s, int x)
 {
 	if(r == NULL)
 	{
@@ -40,12 +113,19 @@ AST copyTree(AST r, AST s, int x)
 	}
 	else if(r->kind == FUNC_NK)
 	{
-		paramID[r->extra] = r->extra + 100;
-		AST z = NEW(ASTNODE);
-		z->kind = r->kind;
-		z->extra = paramID[r->extra];
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
-		return z;		
+		int nv = getVal(r->extra);
+		if(nv != -1)
+		{
+			AST z = NEW(ASTNODE);
+			z->kind = r->kind;
+			z->extra = nv;
+			z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
+			return z;
+		}
+		else
+		{
+			return errorNode("error");
+		}
 		
 	}
 	else if(r->kind == PARAM_NK)
@@ -54,7 +134,16 @@ AST copyTree(AST r, AST s, int x)
 			return s;
 		else
 		{
-			return applyParam(paramID[r->fields.intval]);
+			int nv = getVal(r->fields.intval);
+			if(nv != -1)
+			{
+				return applyParam(nv);
+			}
+			else
+			{
+				//parm value does not exist
+				return errorNode("error");
+			}
 		}
 	}
 	else if(r->kind == OP_NK)
@@ -62,8 +151,8 @@ AST copyTree(AST r, AST s, int x)
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
 		z->extra = r->extra;
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
-		z->fields.subtrees.s2 = copyTree(r->fields.subtrees.s2,s,x);
+		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
+		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
 		return z;		
 	}
 	else if(r->kind == NUMBER_NK)
@@ -77,8 +166,8 @@ AST copyTree(AST r, AST s, int x)
 	{
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
-		z->fields.subtrees.s2 = copyTree(r->fields.subtrees.s2,s,x);
+		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
+		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
 		return z;		
 	}
 	else if((r->kind == ID_NK) || (r->kind == CHARCONST_NK))
@@ -92,9 +181,9 @@ AST copyTree(AST r, AST s, int x)
 	{
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
-		z->fields.subtrees.s2 = copyTree(r->fields.subtrees.s2,s,x);
-		z->fields.subtrees.s2 = copyTree(r->fields.subtrees.s3,s,x);
+		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
+		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
+		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s3,s,x);
 		return z;		
 	}
 	else if(r->kind == BASIC_FUNC_NK)
@@ -102,16 +191,16 @@ AST copyTree(AST r, AST s, int x)
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
 		z->extra = r->extra;
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
+		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
 		return z;		
 	}
-	else if((r->kind == COLON_NK) || (r->kind == CONS_NK) || (r->kind == PRODUCE_NK))
+	else if((r->kind == COLON_NK) || (r->kind == CONS_NK) || (r->kind == ACTION_NK))
 	{
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
 		z->extra = r->extra;
-		z->fields.subtrees.s1 = copyTree(r->fields.subtrees.s1,s,x);
-		z->fields.subtrees.s2 = copyTree(r->fields.subtrees.s2,s,x);
+		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
+		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
 		return z;		
 	}
 	else if(r->kind == BOOL_NK)
@@ -154,6 +243,7 @@ AST simplify(AST t)
 		{	
 			AST s = simplify(t->fields.subtrees.s1);
 			AST r = simplify(t->fields.subtrees.s2);
+			if(s->kind == ERROR_NK)
 			return applyCONS(s, r);
 		}
 		else if(t->kind == BRANCH_NK)
@@ -371,7 +461,7 @@ AST simplify(AST t)
 			else if(t->extra == ISACTION_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == PRODUCE_NK)				
+				if(s->kind == ACTION_NK)				
 					return boolNode("true");
 				else
 					return boolNode("false");
@@ -398,9 +488,9 @@ AST simplify(AST t)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == EMPTYLIST)
-					return errorNode("Cannot return the head of an empty list");
+					return errorNode("Cannot return the tail of an empty list");
 				else if(s->kind != CONS_NK)
-					return errorNode("Cannot return the head of an non-list");
+					return errorNode("Cannot return the tail of an non-list");
 				else
 					return buildTail(s);
 			}
@@ -415,7 +505,7 @@ AST simplify(AST t)
 			
 			
 		}
-		else if(t->kind == PRODUCE_NK)
+		else if(t->kind == ACTION_NK)
 		{
 			return t;
 		}

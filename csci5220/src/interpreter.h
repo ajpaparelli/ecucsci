@@ -2,10 +2,11 @@
 #define INTERPRETER_H_
 
 #include "ast.h"
-#include "simplify.h"
 
 
 void printChar(AST r);
+
+int interpreter(void);
 
 AST performAction(AST t);
 
