@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ast.h"
 #include "symboltable.h"
 #include "simplify.h"
@@ -74,6 +75,11 @@ void scanTree(AST r)
 			{
 				//Error duplicate function
 			}
+		}
+		else if(r->kind == OP_NK)
+		{
+			AST z = getTree(r->fields.stringval);
+			scanTree(z);
 		}
 		else if((r->kind == BASIC_FUNC_NK) || (r->kind == OP_NK) || (r->kind == APPLY_NK)
 			|| (r->kind == BRANCH_NK) || (r->kind == ACTION_NK) || (r->kind == COLON_NK)
@@ -170,7 +176,12 @@ AST copyAST(AST r, AST s, int x)
 		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
 		return z;		
 	}
-	else if((r->kind == ID_NK) || (r->kind == CHARCONST_NK))
+	else if(r->kind == ID_NK)
+	{
+		AST z = copyAST(getTree(r->fields.stringval),s,x);
+		return z;
+	}
+	else if((r->kind == CHARCONST_NK))
 	{
 		AST z = NEW(ASTNODE);
 		z->kind = r->kind;
@@ -230,21 +241,21 @@ AST applyValue(AST r, AST s)
 
 AST simplify(AST t)
 {
+	AST ret = NULL;
 	if(t != NULL)
 	{
 		if(t->kind == ID_NK)
-			return getTree(t->fields.stringval);
+			ret = getTree(t->fields.stringval);
 		else if((t->kind == NUMBER_NK) || (t->kind == CHARCONST_NK)
 			 || (t->kind == EMPTYLIST) || (t->kind == BOOL_NK))  
-			return t; 
+			ret = t; 
 		else if(t->kind == CONS_NK)
-			return t;
+			ret = t;
 		else if(t->kind == COLON_NK)
 		{	
 			AST s = simplify(t->fields.subtrees.s1);
 			AST r = simplify(t->fields.subtrees.s2);
-			if(s->kind == ERROR_NK)
-			return applyCONS(s, r);
+			ret = applyCONS(s, r);
 		}
 		else if(t->kind == BRANCH_NK)
 		{
@@ -255,13 +266,13 @@ AST simplify(AST t)
 			if(s->kind == BOOL_NK)
 			{
 				if(s->extra == BOOL_TRUE)
-					return r;
+					ret = r;
 				else
-					return u;
+					ret = u;
 			}
 			else
 			{
-				return errorNode("Conditional does not resolve into a boolean value");
+				ret = errorNode("Conditional does not resolve into a boolean value");
 			}
 		}
 		else if(t->kind == OP_NK)
@@ -273,11 +284,11 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					int x = s->fields.intval + r->fields.intval;
-					return numberNode(x);
+					ret = numberNode(x);
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 			else if(t->extra == SUBOP_OK)
@@ -285,11 +296,11 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					int x = s->fields.intval - r->fields.intval;
-					return numberNode(x);
+					ret = numberNode(x);
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 			else if(t->extra == MULTOP_OK)
@@ -297,11 +308,11 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					int x = s->fields.intval * r->fields.intval;
-					return numberNode(x);
+					ret = numberNode(x);
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 			else if(t->extra == DIVOP_OK)
@@ -309,14 +320,16 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					if(r->fields.intval == 0)
-						return errorNode("Divide by zero error");
-						
-					int x = s->fields.intval / r->fields.intval;
-					return numberNode(x);
+						ret = errorNode("Divide by zero error");
+					else	
+					{
+						int x = s->fields.intval / r->fields.intval;
+						ret = numberNode(x);
+					}
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer type");
+					ret = errorNode("Operand is not the correct type, must be an integer type");
 				}
 			}
 			else if(t->extra == ANDOP_OK)
@@ -325,16 +338,16 @@ AST simplify(AST t)
 				{
 					if((s->extra == BOOL_TRUE) && (r->extra == BOOL_TRUE))
 					{
-						return boolNode("true");
+						ret = boolNode("true");
 					}
 					else
 					{
-						return boolNode("false");
+						ret = boolNode("false");
 					}
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be a boolean type");
+					ret = errorNode("Operand is not the correct type, must be a boolean type");
 				}
 			}
 			else if(t->extra == OROP_OK)
@@ -343,16 +356,16 @@ AST simplify(AST t)
 				{
 					if((s->extra == BOOL_TRUE) || (r->extra == BOOL_TRUE))
 					{
-						return boolNode("true");
+						ret = boolNode("true");
 					}
 					else
 					{
-						return boolNode("false");
+						ret = boolNode("false");
 					}
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be a boolean type");
+					ret = errorNode("Operand is not the correct type, must be a boolean type");
 				}
 			}
 			else if(t->extra == NOTOP_OK)
@@ -361,16 +374,16 @@ AST simplify(AST t)
 				{
 					if(s->extra == BOOL_TRUE)
 					{
-						return boolNode("false");
+						ret = boolNode("false");
 					}
 					else
 					{
-						return boolNode("true");
+						ret = boolNode("true");
 					}
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be a boolean type");
+					ret = errorNode("Operand is not the correct type, must be a boolean type");
 				}
 			}
 			else if(t->extra == GT_OK)
@@ -378,13 +391,13 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					if(s->fields.intval > r->fields.intval)
-						return boolNode("true");
+						ret = boolNode("true");
 					else					
-						return boolNode("false");
+						ret = boolNode("false");
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 			else if(t->extra == LT_OK)
@@ -392,13 +405,13 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					if(s->fields.intval < r->fields.intval)
-						return boolNode("true");
+						ret = boolNode("true");
 					else
-						return boolNode("false");
-				}
+						ret = boolNode("false");
+				}				
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 			else if(t->extra == EQ_OK)
@@ -406,127 +419,144 @@ AST simplify(AST t)
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 				{
 					if(s->fields.intval == r->fields.intval)
-						return boolNode("true");
+						ret = boolNode("true");
 					else
-						return boolNode("false");
+						ret = boolNode("false");
+				}
+				else if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
+				{
+					if(s->extra < r->extra)
+						ret = boolNode("true");
+					else
+						ret = boolNode("false");
+				}
+				else if((s->kind == CHARCONST_NK) && (r->kind == CHARCONST_NK))
+				{
+					if(strcmp(s->fields.stringval,r->fields.stringval) == 0)
+						ret = boolNode("true");
+					else
+						ret = boolNode("false");
 				}
 				else
 				{
-					return errorNode("Operand is not the correct type, must be an integer");
+					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
 		}
-		if(t->kind == BASIC_FUNC_NK)
+		else if(t->kind == BASIC_FUNC_NK)
 		{
 			if(t->extra == ISINT_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == NUMBER_NK)
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISBOOL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == BOOL_NK)
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISLIST_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISCHAR_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == CHARCONST_NK)
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISFUNC_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if((s->kind == FUNC_NK) || (s->kind == BASIC_FUNC_NK))
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISACTION_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == ACTION_NK)				
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == ISNULL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == EMPTYLIST)
-					return boolNode("true");
+					ret = boolNode("true");
 				else
-					return boolNode("false");
+					ret = boolNode("false");
 			}
 			else if(t->extra == HEAD_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == EMPTYLIST)
-					return errorNode("Cannot return the head of an empty list");
+					ret = errorNode("Cannot return the head of an empty list");
 				else if(s->kind != CONS_NK)
-					return errorNode("Cannot return the head of an non-list");
+					ret = errorNode("Cannot return the head of an non-list");
 				else
-					return getHead(s);				
+					ret = getHead(s);				
 			}
 			else if(t->extra == TAIL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
 				if(s->kind == EMPTYLIST)
-					return errorNode("Cannot return the tail of an empty list");
+					ret = errorNode("Cannot return the tail of an empty list");
 				else if(s->kind != CONS_NK)
-					return errorNode("Cannot return the tail of an non-list");
+					ret = errorNode("Cannot return the tail of an non-list");
 				else
-					return buildTail(s);
+					ret = buildTail(s);
 			}
 			else if((t->extra == READI_FK) || (t->extra == READC_FK))
 			{
-				return t;
+				ret = t;
 			}
 			else if((t->extra == PRINT_FK) || (t->extra == PRILST_FK) || (t->extra == PROD_FK))
 			{
-				return t;
+				ret = t;
 			}
 			
 			
 		}
 		else if(t->kind == ACTION_NK)
 		{
-			return t;
+			ret = t;
 		}
 		else if(t->kind == FUNC_NK)
 		{
-			return t;
+			ret = t;
 		}
 		else if(t->kind == APPLY_NK)
 		{
 				AST r = simplify(t->fields.subtrees.s1);
 				if(r->kind != FUNC_NK)
 				{
-					errorNode("Cannot apply a value to a non-funtion");
+					ret = errorNode("Cannot apply a value to a non-funtion");
 				}
-				AST s = simplify(t->fields.subtrees.s2);
-				return simplify(applyValue(r,s));
+				else
+				{
+					AST s = simplify(t->fields.subtrees.s2);
+					ret = simplify(applyValue(r,s));
+				}
 		}
 		else
-			return errorNode("Unknown token value");
+			ret = errorNode("Unknown token value");
 
 	}
-	return NULL;
+	return ret;
 
 }

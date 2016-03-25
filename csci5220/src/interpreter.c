@@ -9,11 +9,11 @@ void printChar(AST r)
 {
 	if(r->kind == NUMBER_NK)
 	{
-		printf("%d\n",r->fields.intval);
+		printf("%d",r->fields.intval);
 	}
 	else if(r->kind == CHARCONST_NK)
 	{
-		if(strcmp(r->fields.stringval,"\n") == 0)
+		if(strcmp(r->fields.stringval,"\\n") == 0)
 			printf("\n");
 		else if(strcmp(r->fields.stringval,"\\") == 0)
 			printf("\\");
@@ -23,9 +23,9 @@ void printChar(AST r)
 	else if(r->kind == BOOL_NK)
 	{
 		if(r->extra == BOOL_TRUE)
-			printf("TRUE\n");
+			printf("TRUE");
 		else
-			printf("FALSE\n");
+			printf("FALSE");
 	}
 	else
 		printf("Not a int/char/bool type, cannot print\n");
@@ -36,9 +36,9 @@ AST performAction(AST t)
 	AST s = t;
 	if(s->kind == ACTION_NK)
 	{
-		AST x = performAction(s->fields.subtrees.s1);
-		AST y = applyNode(s->fields.subtrees.s2,x);
-		return performAction(y);
+		AST x = performAction(s->fields.subtrees.s1);		
+		AST y = applyNode(simplify(s->fields.subtrees.s2),x);
+		return performAction(simplify(y));
 	}
 	if(s->kind == BASIC_FUNC_NK)
 	{
@@ -66,8 +66,8 @@ AST performAction(AST t)
 		}
 		else if(s->extra == READI_FK)
 		{
-			char str[33];
-			if(fgets(str,33,stdin) != NULL)		
+			char str[11];
+			if(fgets(str,11,stdin) != NULL)		
 				return numberNode(atoi(str));
 			else
 				return errorNode("Not a valid number");
