@@ -221,7 +221,7 @@ AST applyParam(const int n)
 
 AST emptyList(void)
 {
-	AST t= NEW(ASTNODE);
+	AST t = NEW(ASTNODE);
 	t->kind = EMPTYLIST;
 	return t;
 }
@@ -369,10 +369,16 @@ void displayTree(AST A, int indent)
 	int curindent = indent;
 	if(A->kind == EMPTYLIST)
 		printf("%*s%s \n",curindent,"","[]");
+	else if(A->kind == ERROR_NK)
+		printf("%*s%s\n",curindent,"",A->fields.stringval);
 	else if(A->kind == NUMBER_NK)
 		printf("%*s%d \n",curindent,"",A->fields.intval);
 	else if((A->kind == ID_NK) || (A->kind == CHARCONST_NK))
-		printf("%*s%s \n",curindent,"",A->fields.stringval);
+	{	if(strcmp(A->fields.stringval,"\n") == 0)
+			printf("%*s\\n \n",curindent,"");
+		else
+			printf("%*s%s \n",curindent,"",A->fields.stringval);
+	}
 	else if(A->kind == BOOL_NK)
 		printf("%*s%s \n",curindent,"",getBoolName(A->extra));
 	else if(A->kind == PARAM_NK)

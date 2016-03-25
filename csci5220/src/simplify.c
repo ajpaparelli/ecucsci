@@ -148,7 +148,7 @@ AST copyAST(AST r, AST s, int x)
 			else
 			{
 				//parm value does not exist
-				return errorNode("error");
+				return errorNode("Parameter value does not exist");
 			}
 		}
 	}
@@ -255,15 +255,25 @@ AST simplify(AST t)
 		{	
 			AST s = simplify(t->fields.subtrees.s1);
 			AST r = simplify(t->fields.subtrees.s2);
-			ret = applyCONS(s, r);
+			if(s->kind == ERROR_NK)
+				ret = errorNode(s->fields.stringval);
+			else if(r->kind == ERROR_NK)
+				ret = errorNode(s->fields.stringval);
+			else			
+				ret = applyCONS(s, r);
 		}
 		else if(t->kind == BRANCH_NK)
 		{
 			AST s = simplify(t->fields.subtrees.s1);
 			AST r = simplify(t->fields.subtrees.s2);
 			AST u = simplify(t->fields.subtrees.s3);
-			
-			if(s->kind == BOOL_NK)
+			if(s->kind == ERROR_NK)
+				ret = errorNode(s->fields.stringval);
+			else if(r->kind == ERROR_NK)
+				ret = errorNode(r->fields.stringval);
+			else if(u->kind == ERROR_NK)
+				ret = errorNode(u->fields.stringval);
+			else if(s->kind == BOOL_NK)
 			{
 				if(s->extra == BOOL_TRUE)
 					ret = r;
@@ -279,6 +289,12 @@ AST simplify(AST t)
 		{
 			AST s = simplify(t->fields.subtrees.s1);
 			AST r = simplify(t->fields.subtrees.s2);
+			if(s->kind == ERROR_NK)
+				ret = errorNode(s->fields.stringval);
+			else if(r->kind == ERROR_NK)
+				ret = errorNode(s->fields.stringval);
+			else
+			{
 			if(t->extra == PLUSOP_OK)
 			{
 				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
@@ -442,13 +458,16 @@ AST simplify(AST t)
 					ret = errorNode("Operand is not the correct type, must be an integer");
 				}
 			}
+			}
 		}
 		else if(t->kind == BASIC_FUNC_NK)
 		{
 			if(t->extra == ISINT_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == NUMBER_NK)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == NUMBER_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -456,7 +475,9 @@ AST simplify(AST t)
 			else if(t->extra == ISBOOL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == BOOL_NK)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == BOOL_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -464,7 +485,9 @@ AST simplify(AST t)
 			else if(t->extra == ISLIST_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -472,7 +495,9 @@ AST simplify(AST t)
 			else if(t->extra == ISCHAR_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == CHARCONST_NK)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == CHARCONST_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -480,7 +505,9 @@ AST simplify(AST t)
 			else if(t->extra == ISFUNC_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if((s->kind == FUNC_NK) || (s->kind == BASIC_FUNC_NK))
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if((s->kind == FUNC_NK) || (s->kind == BASIC_FUNC_NK))
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -488,7 +515,9 @@ AST simplify(AST t)
 			else if(t->extra == ISACTION_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ACTION_NK)				
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == ACTION_NK)				
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -496,7 +525,9 @@ AST simplify(AST t)
 			else if(t->extra == ISNULL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == EMPTYLIST)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == EMPTYLIST)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -504,7 +535,9 @@ AST simplify(AST t)
 			else if(t->extra == HEAD_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == EMPTYLIST)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == EMPTYLIST)
 					ret = errorNode("Cannot return the head of an empty list");
 				else if(s->kind != CONS_NK)
 					ret = errorNode("Cannot return the head of an non-list");
@@ -514,7 +547,9 @@ AST simplify(AST t)
 			else if(t->extra == TAIL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == EMPTYLIST)
+				if(s->kind == ERROR_NK)
+					ret = errorNode(s->fields.stringval);
+				else if(s->kind == EMPTYLIST)
 					ret = errorNode("Cannot return the tail of an empty list");
 				else if(s->kind != CONS_NK)
 					ret = errorNode("Cannot return the tail of an non-list");
@@ -550,7 +585,10 @@ AST simplify(AST t)
 				else
 				{
 					AST s = simplify(t->fields.subtrees.s2);
-					ret = simplify(applyValue(r,s));
+					if(s->kind == ERROR_NK)
+						ret = errorNode(s->fields.stringval);
+					else 					
+						ret = simplify(applyValue(r,s));
 				}
 		}
 		else

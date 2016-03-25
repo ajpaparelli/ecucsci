@@ -46,7 +46,9 @@ AST performAction(AST t)
 		{
 			AST x= simplify(s->fields.subtrees.s1);
 			while(x->kind != EMPTYLIST)
-			{
+			{	
+				if(x->kind == ERROR_NK)
+					return errorNode(x->fields.stringval);
 				AST y = applyBasicFunc(x,"head");
 				printChar(simplify(y));
 				y = applyBasicFunc(x,"tail");
@@ -108,6 +110,7 @@ int interpreter(void)
 		AST ret = performAction(R);
 		if(ret->kind == ERROR_NK)
 		{
+			printf("Error: %s\n",ret->fields.stringval);
 			return 1;
 		}
 		else if(ret->kind != EMPTYLIST)

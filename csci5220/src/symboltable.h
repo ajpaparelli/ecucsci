@@ -18,7 +18,7 @@
 #include "allocate.h"
 #include "ast.h"
 
-#define TABLE_SIZE 20
+#define TABLE_SIZE 2000
 
 typedef struct hashnode {
 	const char* funcName;
