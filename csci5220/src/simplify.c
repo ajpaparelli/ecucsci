@@ -295,169 +295,169 @@ AST simplify(AST t)
 				ret = errorNode(s->fields.stringval);
 			else
 			{
-			if(t->extra == PLUSOP_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+				if(t->extra == PLUSOP_OK)
 				{
-					int x = s->fields.intval + r->fields.intval;
-					ret = numberNode(x);
-				}
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
-				}
-			}
-			else if(t->extra == SUBOP_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
-				{
-					int x = s->fields.intval - r->fields.intval;
-					ret = numberNode(x);
-				}
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
-				}
-			}
-			else if(t->extra == MULTOP_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
-				{
-					int x = s->fields.intval * r->fields.intval;
-					ret = numberNode(x);
-				}
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
-				}
-			}
-			else if(t->extra == DIVOP_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
-				{
-					if(r->fields.intval == 0)
-						ret = errorNode("Divide by zero error");
-					else	
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 					{
-						int x = s->fields.intval / r->fields.intval;
+						int x = s->fields.intval + r->fields.intval;
 						ret = numberNode(x);
 					}
-				}
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer type");
-				}
-			}
-			else if(t->extra == ANDOP_OK)
-			{
-				if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
-				{
-					if((s->extra == BOOL_TRUE) && (r->extra == BOOL_TRUE))
+					else
 					{
-						ret = boolNode("true");
+						ret = errorNode("Operand is not the correct type, must be an integer");
+					}
+				}
+				else if(t->extra == SUBOP_OK)
+				{
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+					{
+						int x = s->fields.intval - r->fields.intval;
+						ret = numberNode(x);
 					}
 					else
 					{
-						ret = boolNode("false");
+						ret = errorNode("Operand is not the correct type, must be an integer");
 					}
 				}
-				else
+				else if(t->extra == MULTOP_OK)
 				{
-					ret = errorNode("Operand is not the correct type, must be a boolean type");
-				}
-			}
-			else if(t->extra == OROP_OK)
-			{
-				if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
-				{
-					if((s->extra == BOOL_TRUE) || (r->extra == BOOL_TRUE))
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 					{
-						ret = boolNode("true");
+						int x = s->fields.intval * r->fields.intval;
+						ret = numberNode(x);
 					}
 					else
 					{
-						ret = boolNode("false");
+						ret = errorNode("Operand is not the correct type, must be an integer");
 					}
 				}
-				else
+				else if(t->extra == DIVOP_OK)
 				{
-					ret = errorNode("Operand is not the correct type, must be a boolean type");
-				}
-			}
-			else if(t->extra == NOTOP_OK)
-			{
-				if(s->kind == BOOL_NK)
-				{
-					if(s->extra == BOOL_TRUE)
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 					{
-						ret = boolNode("false");
+						if(r->fields.intval == 0)
+							ret = errorNode("Divide by zero error");
+						else	
+						{
+							int x = s->fields.intval / r->fields.intval;
+							ret = numberNode(x);
+						}
 					}
 					else
 					{
-						ret = boolNode("true");
+						ret = errorNode("Operand is not the correct type, must be an integer type");
 					}
 				}
-				else
+				else if(t->extra == ANDOP_OK)
 				{
-					ret = errorNode("Operand is not the correct type, must be a boolean type");
-				}
-			}
-			else if(t->extra == GT_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
-				{
-					if(s->fields.intval > r->fields.intval)
-						ret = boolNode("true");
-					else					
-						ret = boolNode("false");
-				}
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
-				}
-			}
-			else if(t->extra == LT_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
-				{
-					if(s->fields.intval < r->fields.intval)
-						ret = boolNode("true");
+					if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
+					{
+						if((s->extra == BOOL_TRUE) && (r->extra == BOOL_TRUE))
+						{
+							ret = boolNode("true");
+						}
+						else
+						{
+							ret = boolNode("false");
+						}
+					}
 					else
-						ret = boolNode("false");
-				}				
-				else
-				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
+					{
+						ret = errorNode("Operand is not the correct type, must be a boolean type");
+					}
 				}
-			}
-			else if(t->extra == EQ_OK)
-			{
-				if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+				else if(t->extra == OROP_OK)
 				{
-					if(s->fields.intval == r->fields.intval)
-						ret = boolNode("true");
+					if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
+					{
+						if((s->extra == BOOL_TRUE) || (r->extra == BOOL_TRUE))
+						{
+							ret = boolNode("true");
+						}
+						else
+						{
+							ret = boolNode("false");
+						}
+					}
 					else
-						ret = boolNode("false");
+					{
+						ret = errorNode("Operand is not the correct type, must be a boolean type");
+					}
 				}
-				else if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
+				else if(t->extra == NOTOP_OK)
 				{
-					if(s->extra < r->extra)
-						ret = boolNode("true");
+					if(s->kind == BOOL_NK)
+					{
+						if(s->extra == BOOL_TRUE)
+						{
+							ret = boolNode("false");
+						}
+						else
+						{
+							ret = boolNode("true");
+						}
+					}
 					else
-						ret = boolNode("false");
+					{
+						ret = errorNode("Operand is not the correct type, must be a boolean type");
+					}
 				}
-				else if((s->kind == CHARCONST_NK) && (r->kind == CHARCONST_NK))
+				else if(t->extra == GT_OK)
 				{
-					if(strcmp(s->fields.stringval,r->fields.stringval) == 0)
-						ret = boolNode("true");
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+					{
+						if(s->fields.intval > r->fields.intval)
+							ret = boolNode("true");
+						else					
+							ret = boolNode("false");
+					}
 					else
-						ret = boolNode("false");
+					{
+						ret = errorNode("Operand is not the correct type, must be an integer");
+					}
 				}
-				else
+				else if(t->extra == LT_OK)
 				{
-					ret = errorNode("Operand is not the correct type, must be an integer");
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+					{
+						if(s->fields.intval < r->fields.intval)
+							ret = boolNode("true");
+						else
+							ret = boolNode("false");
+					}				
+					else
+					{
+						ret = errorNode("Operand is not the correct type, must be an integer");
+					}
 				}
-			}
+				else if(t->extra == EQ_OK)
+				{
+					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
+					{
+						if(s->fields.intval == r->fields.intval)
+							ret = boolNode("true");
+						else
+							ret = boolNode("false");
+					}
+					else if((s->kind == BOOL_NK) && (r->kind == BOOL_NK))
+					{
+						if(s->extra < r->extra)
+							ret = boolNode("true");
+						else
+							ret = boolNode("false");
+					}
+					else if((s->kind == CHARCONST_NK) && (r->kind == CHARCONST_NK))
+					{
+						if(strcmp(s->fields.stringval,r->fields.stringval) == 0)
+							ret = boolNode("true");
+						else
+							ret = boolNode("false");
+					}
+					else
+					{
+						ret = errorNode("Operand is not the correct type, must be an integer");
+					}
+				}
 			}
 		}
 		else if(t->kind == BASIC_FUNC_NK)
