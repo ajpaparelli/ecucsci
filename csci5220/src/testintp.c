@@ -32,7 +32,30 @@ AST setupList(const char* str,int x)
 
 int main() 
 {
-	AST s = setupList("How many seconds?",0);
+	AST s = setupList("Input secret character...",0);
+	
+	AST BF0 = applyBasicFunc(s,"printList");
+	AST BF1 = applyBasicFunc(emptyList(),"readChar");
+	AST F1 = applyFunction(BF1,1,"");
+	AST ACT1 = applyAction(BF0,F1);
+	
+	AST a1 = boolNode("true");
+	AST a2 = applyBasicFunc(a1,"print");
+	insertTree("y",a2);
+
+	AST b1 = boolNode("false");
+	AST b2 = applyBasicFunc(b1,"print");
+	insertTree("n",b2);
+
+	
+	AST IF1 = idNode("sc");
+	AST IF2 = charNode("X");
+	AST IF3 = applyOp(IF1,IF2,"==");
+	AST IF4 = applyBranch(IF3, a2, b2);
+	AST F2 = applyFunction(IF4,2,"sc");
+	AST ACT2 = applyAction(ACT1,F2);
+	insertTree("main",ACT2);
+/*	AST s = setupList("How many seconds?",0);
 	//displayAST(s);
 	//displayAST(simplify(s));
 	
@@ -85,9 +108,7 @@ int main()
 	AST l2 = applyCOLON(_mins,l1);
 	AST l3 = applyCOLON(charNode(":"),l2);
 	AST l4 = applyCOLON(_h,l3);
-	AST l5 = applyCOLON(charNode(":"),l4);
-	AST l6 = applyCOLON(h3,emptyList());
-	AST BF2 = applyBasicFunc(l6,"printList");	
+	AST BF2 = applyBasicFunc(l4,"printList");	
 	AST F6 = applyFunction(BF2,6,"mins");
 	AST APP4 = applyNode(F6,d5);
 	AST F5 = applyFunction(APP4,5,"secs");
@@ -98,8 +119,8 @@ int main()
 	AST APP1 = applyNode(F3,a3);
 	AST F2 = applyFunction(APP1,2,"n");
 	AST ACT2 = applyAction(ACT1,F2);
-	insertTree("main",BF2);
-	int x = interpreter();	
+	insertTree("main",ACT2);*/
+	int x = runInterpreter();	
 
 	printf("\n%d\n",x);	
 
