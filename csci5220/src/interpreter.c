@@ -1,3 +1,17 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: interpreter.c contains all function used by the SFL interpreter. 
+	Function descriptions will follow to explain each funtion.
+
+	Change Log:
+	2016-03-25: Initial Revision
+
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,7 +19,9 @@
 #include "ast.h"
 #include "simplify.h"
 
-void printChar(AST r)
+/* This function used to output the contents of a number/const char/boolean node */
+
+void printValue(AST r)
 {
 	if(r->kind == NUMBER_NK)
 	{
@@ -31,6 +47,10 @@ void printChar(AST r)
 		printf("Not a int/char/bool type, cannot print\n");
 }
 
+/* This is the Perform Action function, it perform the specified action or return an errorNode
+	if the action conditions are not met. Only works on ACTION NODES, PRINTLIST, PRINT, PRODUCE
+	READINT, and READCHAR actions.  All other node types result in an error. */
+
 AST performAction(AST t)
 {
 	AST s = t;
@@ -50,7 +70,7 @@ AST performAction(AST t)
 				if(x->kind == ERROR_NK)
 					return errorNode(x->fields.stringval);
 				AST y = applyBasicFunc(x,"head");
-				printChar(simplify(y));
+				printValue(simplify(y));
 				y = applyBasicFunc(x,"tail");
 				x = simplify(y);
 			}
@@ -59,7 +79,7 @@ AST performAction(AST t)
 		else if(s->extra == PRINT_FK)
 		{
 			AST r = simplify(s->fields.subtrees.s1);
-			printChar(r);
+			printValue(r);
 			return emptyList();
 		}
 		else if(s->extra == PROD_FK)
@@ -94,7 +114,12 @@ AST performAction(AST t)
 
 }
 
-int interpreter(void)
+/* This is the main interpreter function, if the tree(R) obtained by simplifying tree M is an action type
+then performAction is called with tree R as the argument.  If the return value is not an empty list the result is 
+displayed.  If tree R is not an action type then the tree is displayed.  Once the interpreter has run without error
+a 0 is returned, otherwise if an error is encountered the error type is displayed and a 1 is returned. */
+
+int runInterpreter(void)
 {
 	AST M = getTree("main");
 	AST R = simplify(M);

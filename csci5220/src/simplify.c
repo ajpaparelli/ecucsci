@@ -1,9 +1,29 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: simplify.c contains all function used by the SFL simplifier. 
+	Function descriptions will follow to explain each funtion.
+
+	Change Log:
+	2016-03-25: Initial Revision
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
 #include "symboltable.h"
 #include "simplify.h"
+
+
+VL headptr;
+
+/* This function will return the head of a list, emptylist is checked before this
+function is called */
 
 AST getHead(AST t)
 {
@@ -16,7 +36,10 @@ AST getHead(AST t)
 	return s;	
 }
 
-AST buildTail(AST t)
+/* This function will return the tail of a list, emptylist is checked before this
+function is called */
+
+AST getTail(AST t)
 {
 	AST s = NEW(ASTNODE);
 	s->kind = t->kind;
@@ -26,12 +49,18 @@ AST buildTail(AST t)
 		return s->fields.subtrees.s2;
 	else
 	{
-		s->fields.subtrees.s1 = buildTail(s->fields.subtrees.s1);		
+		s->fields.subtrees.s1 = getTail(s->fields.subtrees.s1);		
 		return s;
 	}
 }
 
-VL headptr;
+/* The following 4 functions describe the means by which this simplifier saves and a
+assigned the paramNode values in an AST.  I use a linked list to store the old and new values
+during a tree traversal and copy. */
+
+
+/* This function looks for the old paramNode value in the VALNODE list and returns the new
+reassignment value, if the value does not exist a -1 is returned */
 
 int getVal(int x)
 {
@@ -51,6 +80,8 @@ int getVal(int x)
 	}
 }
 
+/* This function creates a new VAL node to save the old and new paramNode id values */
+
 VL newValNode(VL inPtr, int val)
 {
 	VL vn = NEW(VALNODE);
@@ -59,6 +90,9 @@ VL newValNode(VL inPtr, int val)
 	vn->newval = val + 1000;
 	return vn;
 }
+
+/* This function scans the AST defined by r and looks for any paramNodes, if one is found the old and new values
+are stored in a VALNODE and added to the VALLIST which headptr points to */
 
 void scanTree(AST r)
 {
@@ -70,10 +104,6 @@ void scanTree(AST r)
 			{
 				headptr = newValNode(headptr, r->extra);
 				scanTree(r->fields.subtrees.s1);
-			}
-			else
-			{
-				//Error duplicate function
 			}
 		}
 		else if(r->kind == OP_NK)
@@ -92,6 +122,8 @@ void scanTree(AST r)
 	}
 }
 
+/* This function deletes the VALNODE list after a tree copy is complete. */
+
 void deleteValList(VL ptr)
 {
 	if(ptr != NULL)
@@ -100,6 +132,12 @@ void deleteValList(VL ptr)
 		free(ptr);
 	}
 }	
+
+/* This is the inital function called when a tree copy is invoked.  The function starts by scanning the tree R 
+and generates a list of old/new values for any paramNodes encountered.  Once the scan is complete a copyAST will 
+copy tree R and replace any paramNode with a value of x by tree S.  Copy AST will return the copied tree to t and
+then the VALNODE list will be cleared for the next copy attempt.  The inital tree remains unaltered by this function.
+*/
 
 AST copyTree(AST r, AST s, int x)
 {
@@ -110,6 +148,9 @@ AST copyTree(AST r, AST s, int x)
 	headptr = NULL;
 	return t;
 }
+
+/* This function is initally called by copyTree and will recursivly generate a copy of the original tree defined by r. Any
+param nodes with the value of x will be replaced by AST s. The original tree is left unaltered. */
 
 AST copyAST(AST r, AST s, int x)
 {
@@ -130,7 +171,7 @@ AST copyAST(AST r, AST s, int x)
 		}
 		else
 		{
-			return errorNode("error");
+			return errorNode("Invalid Function Value");
 		}
 		
 	}
@@ -231,6 +272,9 @@ AST copyAST(AST r, AST s, int x)
 		return NULL;
 }
 
+/* This function calls the copy function to apply AST s to any paramNode in the subtree of the current function, the replacement
+value for the paramNode is defined the the present functions ID. */ 
+	
 AST applyValue(AST r, AST s)
 {
 	int i;
@@ -238,6 +282,10 @@ AST applyValue(AST r, AST s)
 	return copyTree(r->fields.subtrees.s1, s, i);
 	
 }
+
+/* This is the simplify function defined by the SFL simplify project, this function is called by the interpreter to simplify the AST so
+that the tree can be interpreted and relvent actions applied. A simplified tree is returned as specfied by the defintion on the class website
+if there are any errors during the simplification an errorNode is returned to help define what the encountered error was*/
 
 AST simplify(AST t)
 {
@@ -554,7 +602,7 @@ AST simplify(AST t)
 				else if(s->kind != CONS_NK)
 					ret = errorNode("Cannot return the tail of an non-list");
 				else
-					ret = buildTail(s);
+					ret = getTail(s);
 			}
 			else if((t->extra == READI_FK) || (t->extra == READC_FK))
 			{

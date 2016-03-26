@@ -329,6 +329,9 @@ AST applyFunction(AST A, const int n, const char* s)
 	return t;
 }
 
+
+/* Function to replace the ID nodes in AST tree E with stringval = s to a paramNode with intval n */
+
 AST replaceID(const char* s, const int n, AST E)
 {
 	if(E->kind == ID_NK) 
