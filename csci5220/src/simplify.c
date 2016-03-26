@@ -235,7 +235,7 @@ AST copyAST(AST r, AST s, int x)
 		z->kind = r->kind;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
 		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
-		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s3,s,x);
+		z->fields.subtrees.s3 = copyAST(r->fields.subtrees.s3,s,x);
 		return z;		
 	}
 	else if(r->kind == BASIC_FUNC_NK)
