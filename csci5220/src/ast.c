@@ -253,7 +253,10 @@ AST applyOp(AST A, AST B, const char* opKind)
 	t->kind = OP_NK;
 	t->extra = getOperatorDef(opKind);	
 	t->fields.subtrees.s1 = A;
-	t->fields.subtrees.s2 = B;
+	if(t->extra == NOTOP_OK)
+		t->fields.subtrees.s2 = emptyList();
+	else
+		t->fields.subtrees.s2 = B;
 	return t;
 }
 
