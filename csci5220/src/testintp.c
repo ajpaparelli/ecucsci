@@ -39,8 +39,13 @@ int main()
 	AST F1 = applyFunction(BF1,1,"");
 	AST ACT1 = applyAction(BF0,F1);
 	
-	AST a1 = boolNode("true");
-	AST a2 = applyBasicFunc(a1,"print");
+	AST OP1 = boolNode("true");
+	AST OP2 = boolNode("true");
+	AST OP3 = applyOp(OP1, OP2, "and");
+	AST OP4 = applyOp(OP3, NULL, "not");
+
+	AST a1 = numberNode(1000);
+	AST a2 = applyBasicFunc(OP4,"print");
 	insertTree("y",a2);
 
 	AST b1 = boolNode("false");
@@ -48,13 +53,13 @@ int main()
 	insertTree("n",b2);
 
 	
-	AST IF1 = idNode("sc");
+/*	AST IF1 = idNode("sc");
 	AST IF2 = charNode("X");
 	AST IF3 = applyOp(IF1,IF2,"==");
 	AST IF4 = applyBranch(IF3, a2, b2);
 	AST F2 = applyFunction(IF4,2,"sc");
-	AST ACT2 = applyAction(ACT1,F2);
-	insertTree("main",ACT2);
+	AST ACT2 = applyAction(ACT1,F2);*/
+	insertTree("main",idNode("y"));
 /*	AST s = setupList("How many seconds?",0);
 	//displayAST(s);
 	//displayAST(simplify(s));
