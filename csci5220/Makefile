@@ -14,12 +14,17 @@ CFILES = src/stringtable.c\
 	 src/simplify.c\
 	 src/testsimp.c\
 	 src/interpreter.c\
-	 src/testintp.c
+	 src/testintp.c\
+	 src/y.tab.c
+
+BFILES = src/lex.yy.c\
+	src/y.tab.c
 
 OFILES = $(patsubst src/%.c,obj/%.o,$(CFILES))
 
 EFILES = bin/teststringtable\
-         bin/testlexer
+         bin/testlexer\
+	 bin/testparser
 
 STRINGTABLE_OFILES = obj/stringtable.o\
                      obj/teststringtable.o
@@ -48,7 +53,11 @@ INTP_OFILES	= obj/stringtable.o\
 		  obj/symboltable.o\
 		  obj/simplify.o\
 		  obj/interpreter.o\
-		  obj/testintp.o	  
+		  obj/testintp.o
+
+PARSER_OFILES	= obj/stringtable.o\
+		  obj/y.tab.o\
+		  obj/lex.yy.o
 
 teststringtable: $(STRINGTABLE_OFILES)
 	$(LINK) -o bin/teststringtable $(STRINGTABLE_OFILES)
@@ -68,11 +77,17 @@ testsimp: $(SIMP_OFILES)
 testintp: $(INTP_OFILES)
 	$(LINK) -o bin/testintp $(INTP_OFILES)
 
+testparser: $(PARSER_OFILES)
+	$(LINK) -o bin/testparser $(PARSER_OFILES)
+
 src/lex.yy.c: src/lexer.lex
 	cd src; flex lexer.lex
+
+src/y.tab.c: src/parser.y
+	cd src; bison -y -v -d parser.y
 
 obj/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OFILES) $(EFILES)
+	$(RM) $(OFILES) $(BFILES) $(EFILES)
