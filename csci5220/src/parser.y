@@ -1,7 +1,20 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: parser.y defines the grammar rules for the SFL language.
+
+	Change Log:
+	2016-04-05: Initial Revision
+
+*/
 %{
 #include <stdio.h>
 #include "token.h"
 #include "lexer.h"
+#define YYDEBUG 1
 void yyerror(char const *s);
 int error_occured;
 %}
@@ -53,6 +66,7 @@ Definitions	: Definition
 		;
 
 Definition	: TOK_DEF IdList '=' Expr TOK_END
+		| error TOK_END
 		;
 
 Expr		: Id
@@ -111,7 +125,7 @@ int main(int argc, char** argv)
 		yyin = fopen(argv[1],"r");
 		if(yyin == NULL)
 			return 1;
-		
+		yydebug = 1;
 		return yyparse();
 	}
 	else
