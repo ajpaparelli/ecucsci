@@ -1,6 +1,9 @@
 %{
-#define YYDEBUG
+#include <stdio.h>
 #include "token.h"
+#include "lexer.h"
+void yyerror(char const *s);
+int error_occured;
 %}
 
 %token TOK_ARROW
@@ -24,15 +27,22 @@
 %token TOK_INTEGER
 %token TOK_THEN
 %token TOK_CHARCONST
+%token TOK_SEMI
+%token TOK_COLON
 
-//%type <tree> Fact
-//%type <tree> Term
-//%type <tree> Expr
-//%type <tree> Case
-//%type <tree> List
-//%type <t
-%left LP
-%right RP
+%nonassoc TOK_ID TOK_INTEGER TOK_CHARCONST TOK_BOOL '[' '(' 
+%nonassoc TOK_CHECK_FUNC TOK_LIST_FUNC TOK_ACTION_FUNC
+%nonassoc TOK_RELOP TOK_LET TOK_CASE
+%left TOK_MULOP
+%left TOK_ADDOP
+%left TOK_LOGIC
+%left TOK_NOT
+%left JUXT
+%left TOK_SEMI
+%left TOK_PROD
+%right TOK_ARROW
+%right TOK_COLON
+
 %%
 Program		: 
 		| Definitions		
@@ -42,38 +52,32 @@ Definitions	: Definition
 		| Definitions Definition
 		;
 
-Definition	: TOK_DEF TOK_ID '=' Expr TOK_END
+Definition	: TOK_DEF IdList '=' Expr TOK_END
 		;
 
-Expr		: Term	
+Expr		: Id
+		| TOK_INTEGER
+		| TOK_CHARCONST
+		| TOK_BOOL
 		| List
-		| Boolean	
-		| CharConst
-		| TOK_ID
-		| TOK_CASE CaseList TOK_ELSE Expr TOK_END
+		| '(' Expr ')'
+		| Expr Expr %prec JUXT
+		| Expr TOK_PROD Expr
+		| Expr TOK_SEMI Expr
+		| Expr TOK_ARROW Expr
+		| Expr TOK_MULOP Expr
+		| Expr TOK_ADDOP Expr
+		| Expr TOK_LOGIC Expr
+		| Expr TOK_RELOP Expr
+		| Expr TOK_COLON Expr
+		| TOK_NOT Expr
+		| TOK_LIST_FUNC Expr
+		| TOK_CHECK_FUNC Expr
+		| TOK_ACTION_FUNC
+		| TOK_CASE CaseList '|' TOK_ELSE TOK_THEN Expr TOK_END
 		| TOK_LET TOK_ID '=' Expr TOK_IN Expr TOK_END
 		;
 
-Boolean		: BoolFact
-		| Boolean TOK_LOGIC BoolFact
-		| TOK_NOT BoolFact
-		;
-
-BoolFact	: TOK_BOOL
-		| '(' Boolean ')'
-		;
-
-CharConst	: TOK_CHARCONST
-		;
-
-Term		: Fact
-		| Term TOK_ADDOP Fact %prec LP
-		| Term TOK_MULOP Fact %prec LP
-		;
-
-Fact		: TOK_INTEGER
-		| '(' Term ')'
-		;
 
 List		: '[' ']'
 		| '[' ExprList ']'
@@ -81,6 +85,13 @@ List		: '[' ']'
 
 ExprList	: Expr
 		| Expr ',' ExprList
+		;
+
+IdList		: 
+		| IdList Id
+		;
+
+Id		: TOK_ID
 		;
 
 CaseList	: Case
@@ -93,15 +104,22 @@ Case		: Expr TOK_THEN Expr
 %%
 int main(int argc, char** argv)
 {
+	linenum = 0;
+	error_occured = 0;
 	if(argc == 2) 
 	{
 		yyin = fopen(argv[1],"r");
-		if(yyin == NULL
+		if(yyin == NULL)
 			return 1;
 		
-		yydebug = 1;
 		return yyparse();
 	}
 	else
 		return 1;
+}
+
+void yyerror(char const *s)
+{
+	printf("Syntax Error on line : %d \n",linenum);
+	error_occured = 1;
 }

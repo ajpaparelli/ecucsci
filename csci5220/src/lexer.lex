@@ -16,8 +16,7 @@
 #include "token.h"
 #include "lexer.h"
 #include "stringtable.h"
-
-YYSTYPE yylval;
+#include "y.tab.h"
 %}
 
 %option noinput
@@ -39,8 +38,16 @@ number  {digit}+
 "//".*\n|"\n"	{linenum++;
 		}
 
-"("|")"|";"|":"|","|"["|"]"|"|"|"=" { yylval.str = yytext;
+"("|")"|","|"["|"]"|"|"|"=" { yylval.str = yytext;
 		return yytext[0];
+		}
+
+":"		{yylval.str = yytext;
+		 return TOK_COLON;
+		}
+
+";"		{yylval.str = yytext;
+		 return TOK_SEMI;
 		}
 
 "->"		{yylval.str = yytext;
@@ -101,12 +108,20 @@ isList|isNull|isBool|isFunction|isInt|isAction	{yylval.str = yytext;
 		 		 	 return TOK_CHECK_FUNC;
 					}
 
-case|if|else	{yylval.str = yytext;
-		 return TOK_IFOP;
+case		{yylval.str = yytext;
+		 return TOK_CASE;
 		}
 
-and|or|not	{yylval.str = yytext;
+else		{yylval.str = yytext;
+		 return TOK_ELSE;
+		}
+
+and|or		{yylval.str = yytext;
 		 return TOK_LOGIC;
+	        }
+
+not		{yylval.str = yytext;
+		 return TOK_NOT;
 	        }
 
 {id}    	{yylval.str = intern(yytext);

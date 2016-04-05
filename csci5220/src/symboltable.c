@@ -36,13 +36,19 @@ int items = 0;
 
 int hashify(const char* key)
 {
-	unsigned int hash = 0;
-        int i;
-	for(i = 0; key[i] != '\0'; i++)
+	const char* p;
+	int g;
+	int h = 0;
+	
+	for(p = key; *p != '\0'; p++)
 	{
-		hash = 31 * hash + key[i];
+		h = ( h << 4) + (int)(*p);
+		g = h & 0xF0000000;
+		if(g != 0)
+			h = h ^ (g >> 24);
+		h = h & ~g;
 	}
-	return hash % tableSize;
+	return h % tableSize;
 }
 
 /* Function to check for the existance of a symbol in the symbol table
@@ -110,9 +116,11 @@ void displayContents()
 			HASH hn = symTable[i];
 			while(hn != NULL)
 			{
-				printf("%d: %s\n",i, hn->funcName);
-				hn = hn->next;
+				printf("%d: %s --> ",i, hn->funcName);
+				hn = hn->next;			
 			}
+			if(symTable[i] != NULL)
+				printf("\n");
 		}
 	}
 	else
@@ -173,27 +181,30 @@ void rehash()
 	}
 }
 
+/* Function to delete any nodes in the hash table index location */
+
+void deleteList(HASH hn)
+{
+	if(hn != NULL)
+	{
+		deleteList(hn->next);
+		free(hn);
+	}
+}
+
 /* Function to clear out the symTable and set all table entries to NULL, does not delete the table though */
 
-void clearTable()
+void clearTable(void)
 {
 	if(symTable != NULL)
 	{
-		HASH hn;
-		HASH tmp;
 		int i;
 		for(i = 0; i < tableSize; i++)
 		{
 			if(symTable[i] != NULL)
 			{
-				hn = symTable[i];
-				while(hn != NULL)
-				{
-					tmp = hn;
-					hn = hn->next;
-					free(tmp);
-				}	
-			symTable[i] = NULL;
+				deleteList(symTable[i]);
+				symTable[i] = NULL;
 			}
 		}
 		items = 0;
@@ -202,7 +213,7 @@ void clearTable()
 
 /* Function to delete the symbol table from memory */
 
-void deleteTable()
+void deleteTable(void)
 {
 	if(symTable != NULL)
 	{
@@ -214,6 +225,18 @@ void deleteTable()
 		tableSize = TABLE_SIZE;
 	}
 }
+
+/* Function to add new a new hashnode to the table */
+
+HASH newHashNode(const char* key, AST A, HASH ptr)
+{
+	HASH hn = NEW(HASHNODE);
+	hn->funcName = key;
+	hn->astTree = A;
+	hn->next = ptr;
+	return hn;
+}
+
 
 /* Function to insert a new AST tree into the table, returns a 1 if successful and -1 if unsuccesful */
 int insertTree(const char* key, AST A)
@@ -235,30 +258,8 @@ int insertTree(const char* key, AST A)
 		}
 
 		int index;
-		HASH hn;
 		index = hashify(key);
-	
-		if(symTable[index] == NULL)
-		{
-			hn = NEW(HASHNODE);	
-			hn->funcName = key;
-			hn->astTree = A;
-			hn->next = NULL;  
-			symTable[index] = hn;
-		}
-		else
-		{
-			hn = symTable[index];
-			while(hn->next != NULL)
-				hn = hn->next;
-		
-			hn->next = NEW(HASHNODE);
-			
-			hn = hn->next;
-			hn->funcName = key;
-			hn->astTree = A;
-			hn->next = NULL;
-		}
+		symTable[index] = newHashNode(key,A,symTable[index]);
 		items = items + 1;		
 		return 1;
 	}

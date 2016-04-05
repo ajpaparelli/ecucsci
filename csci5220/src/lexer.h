@@ -16,13 +16,12 @@
 #define LEXER_H
 
 #include <stdio.h>
-#include "token.h"
 
 int yylex();
 
 extern FILE* yyin;
 
-YYSTYPE yylval;
+extern YYSTYPE yylval;
 
 int linenum;
 
