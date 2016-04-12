@@ -34,7 +34,7 @@ int funcNum;
 %token TOK_LET
 %token TOK_IN
 %token <str> TOK_LIST_FUNC
-%token TOK_ACTION_FUNC
+%token <str> TOK_ACTION_FUNC
 %token <str> TOK_CHECK_FUNC
 %token TOK_ELSE
 %token TOK_CASE
@@ -69,18 +69,25 @@ int funcNum;
 
 %%
 Program		: 
-		| Definitions		
+		| Definitions
+			{}		
 		;
 
 Definitions	: Definition
+			{}
 		| Definitions Definition
+			{}
 		;
 
 Definition	: TOK_DEF IdList '=' Expr TOK_END
+			{ displayAST($2);
+			  displayAST($4);
+			  printf("\n");
+			}
 		| error TOK_END
 		;
 
-Expr		: TOK_ID
+Expr		: Id
 			{
 				$$ = $1;
 			}
@@ -106,7 +113,10 @@ Expr		: TOK_ID
 			}
 		| Expr Expr %prec JUXT
 			{
-				$$ = applyNode($1,$2);
+				if($1 == TOK_ACTION_FUNC)
+					$$ = applyBasicFunc($2,$1);
+				else
+					$$ = applyNode($1,$2);
 			}
 		| Expr TOK_PROD Expr
 		| Expr TOK_SEMI Expr
@@ -147,6 +157,9 @@ Expr		: TOK_ID
 				$$ = applyBasicFunc($2, $1);
 			}
 		| TOK_ACTION_FUNC
+			{
+				$$ = $1;
+			}
 		| TOK_CASE CaseList '|' TOK_ELSE TOK_THEN Expr TOK_END
 		| TOK_LET TOK_ID '=' Expr TOK_IN Expr TOK_END
 		;
@@ -222,7 +235,10 @@ int main(int argc, char** argv)
 		yydebug = 0;
 		yyparse();
 		if(!error_occured)
+		{
+			printf("here\n");
 			return runInterpreter();
+		}
 	}
 	else
 		return 1;
@@ -233,3 +249,4 @@ void yyerror(char const *s)
 	printf("Syntax Error on line : %d \n",linenum);
 	error_occured = 1;
 }
+
