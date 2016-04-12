@@ -56,6 +56,10 @@ INTP_OFILES	= obj/stringtable.o\
 		  obj/testintp.o
 
 PARSER_OFILES	= obj/stringtable.o\
+		  obj/ast.o\
+		  obj/symboltable.o\
+		  obj/simplify.o\
+		  obj/interpreter.o\
 		  obj/y.tab.o\
 		  obj/lex.yy.o
 
