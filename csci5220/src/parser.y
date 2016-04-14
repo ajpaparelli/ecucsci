@@ -24,7 +24,7 @@ int funcNum;
 %}
 
 %token TOK_ARROW
-%token TOK_PROD
+%token TOK_ACTION
 %token <str> TOK_BOOL
 %token <str> TOK_MULOP
 %token <str> TOK_ADDOP
@@ -44,12 +44,13 @@ int funcNum;
 %token <ival> TOK_INTEGER
 %token TOK_THEN
 %token <str> TOK_CHARCONST
+%token <str> TOK_READ;
 %token TOK_SEMI
 %token TOK_COLON
 
 %nonassoc TOK_ID TOK_INTEGER TOK_CHARCONST TOK_BOOL '[' '(' 
 %nonassoc TOK_CHECK_FUNC TOK_LIST_FUNC TOK_ACTION_FUNC
-%nonassoc TOK_RELOP TOK_LET TOK_CASE
+%nonassoc TOK_RELOP TOK_LET TOK_CASE TOK_READ
 
 %left TOK_MULOP
 %left TOK_ADDOP
@@ -57,7 +58,7 @@ int funcNum;
 %left TOK_NOT
 %left JUXT
 %left TOK_SEMI
-%left TOK_PROD
+%left TOK_ACTION
 %right TOK_ARROW
 %right TOK_COLON
 
@@ -82,6 +83,7 @@ Definitions	: Definition
 Definition	: TOK_DEF IdList '=' Expr TOK_END
 			{ displayAST($2);
 			  displayAST($4);
+			  installDefintions($2, $4);
 			  printf("\n");
 			}
 		| error TOK_END
@@ -113,12 +115,12 @@ Expr		: Id
 			}
 		| Expr Expr %prec JUXT
 			{
-				if($1 == TOK_ACTION_FUNC)
-					$$ = applyBasicFunc($2,$1);
-				else
-					$$ = applyNode($1,$2);
+				$$ = applyNode($1,$2);
 			}
-		| Expr TOK_PROD Expr
+		| Expr TOK_ACTION Expr
+			{
+				$$ = applyAction($1,$3);
+			}
 		| Expr TOK_SEMI Expr
 			{
 				$$ = applyCONS($1,$3);
@@ -156,12 +158,16 @@ Expr		: Id
 			{
 				$$ = applyBasicFunc($2, $1);
 			}
-		| TOK_ACTION_FUNC
+		| TOK_ACTION_FUNC Expr
 			{
-				$$ = $1;
+				$$ = applyBasicFunc($2, $1);
+			}
+		| TOK_READ
+			{
+				$$ = applyBasicFunc(emptyList(),$1);
 			}
 		| TOK_CASE CaseList '|' TOK_ELSE TOK_THEN Expr TOK_END
-		| TOK_LET TOK_ID '=' Expr TOK_IN Expr TOK_END
+		| TOK_LET Id '=' Expr TOK_IN Expr TOK_END
 		;
 
 
@@ -213,7 +219,7 @@ void installDefintions(AST lhs, AST body)
 	AST nb = body;
 	AST defnode = lhs->fields.subtrees.s1;
 		
-	/*for(IDLIST p = lhs; p->next != NULL; p = p->next)
+	/*for(AST p = lhs->fields.subtrees.s1; p->next != NULL; p = p->next)
 	{
 		nb = applyFunction(nb, funcNum, nb->name);
 		funcNum++;	

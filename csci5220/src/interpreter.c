@@ -123,7 +123,6 @@ int runInterpreter(void)
 {
 	AST M = getTree("main");
 	AST R = simplify(M);
-	
 	if((R->kind == ACTION_NK) ||
 	   ((R->kind == BASIC_FUNC_NK) &&
 	   	((R->extra == PRILST_FK) ||
@@ -144,6 +143,8 @@ int runInterpreter(void)
 		}
 	} 
 	else
+	{
 		displayAST(R);
+	}
 	return 0;
 }
