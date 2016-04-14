@@ -1,0 +1,2 @@
+def l = true or false end
+def main = print (true or false) end
