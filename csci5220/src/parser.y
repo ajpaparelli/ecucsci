@@ -81,10 +81,8 @@ Definitions	: Definition
 		;
 
 Definition	: TOK_DEF IdList '=' Expr TOK_END
-			{ displayAST($2);
-			  displayAST($4);
-			  installDefintions($2, $4);
-			  printf("\n");
+			{  
+				installDefintions($2, $4);
 			}
 		| error TOK_END
 		;
@@ -126,6 +124,9 @@ Expr		: Id
 				$$ = applyCONS($1,$3);
 			}
 		| Expr TOK_ARROW Expr
+			{
+				
+			}
 		| Expr TOK_MULOP Expr
 			{
 				$$ = applyOp($1,$3,$2);
@@ -168,6 +169,10 @@ Expr		: Id
 			}
 		| TOK_CASE CaseList '|' TOK_ELSE TOK_THEN Expr TOK_END
 		| TOK_LET Id '=' Expr TOK_IN Expr TOK_END
+			{
+				insertTree($2->fields.stringval, $4);
+				$$ = $6;
+			}
 		;
 
 
@@ -241,8 +246,7 @@ int main(int argc, char** argv)
 		yydebug = 0;
 		yyparse();
 		if(!error_occured)
-		{
-			printf("here\n");
+		{			
 			return runInterpreter();
 		}
 	}

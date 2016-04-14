@@ -15,8 +15,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include <stdio.h>
-
 int yylex();
 
 extern FILE* yyin;
@@ -24,6 +22,5 @@ extern FILE* yyin;
 extern YYSTYPE yylval;
 
 int linenum;
-
 
 #endif

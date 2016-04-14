@@ -1,2 +1,7 @@
-def l = true or false end
-def main = print (true or false) end
+def l = 5 end
+def main = 
+	readInt ~> (n ->
+		let x = n in 
+			print x
+	end)
+end

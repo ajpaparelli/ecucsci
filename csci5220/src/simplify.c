@@ -293,7 +293,7 @@ AST simplify(AST t)
 	if(t != NULL)
 	{
 		if(t->kind == ID_NK)
-			ret = getTree(t->fields.stringval);
+			ret = simplify(getTree(t->fields.stringval));
 		else if((t->kind == NUMBER_NK) || (t->kind == CHARCONST_NK)
 			 || (t->kind == EMPTYLIST) || (t->kind == BOOL_NK))  
 			ret = t; 

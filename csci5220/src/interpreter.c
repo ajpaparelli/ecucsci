@@ -56,8 +56,9 @@ AST performAction(AST t)
 	AST s = t;
 	if(s->kind == ACTION_NK)
 	{
-		AST x = performAction(s->fields.subtrees.s1);		
-		AST y = applyNode(simplify(s->fields.subtrees.s2),x);
+		AST x = performAction(s->fields.subtrees.s1);
+		AST y = applyNode(s->fields.subtrees.s2,x);
+		displayAST(y);			
 		return performAction(simplify(y));
 	}
 	if(s->kind == BASIC_FUNC_NK)
@@ -146,5 +147,6 @@ int runInterpreter(void)
 	{
 		displayAST(R);
 	}
+	printf("\n");
 	return 0;
 }
