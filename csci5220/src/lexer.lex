@@ -17,6 +17,8 @@
 #include "lexer.h"
 #include "stringtable.h"
 #include "y.tab.h"
+#include <string.h>
+#include <stdio.h>
 %}
 
 %option noinput
@@ -31,7 +33,10 @@ number  {digit}+
 
 [ \t] 		{}
 
-\'(.|\\\\|\\n)\' {yylval.str = intern(yytext);
+\'(.|\\\\|\\n)\' { char* tmpstr = malloc(strlen(yytext+1));
+		  strncpy(tmpstr,yytext+1,strlen(yytext)-2);
+		  yylval.str = intern(tmpstr);
+		  free(tmpstr);
 		  return TOK_CHARCONST;
 		}
 

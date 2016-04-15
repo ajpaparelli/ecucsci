@@ -57,8 +57,7 @@ AST performAction(AST t)
 	if(s->kind == ACTION_NK)
 	{
 		AST x = performAction(s->fields.subtrees.s1);
-		AST y = applyNode(s->fields.subtrees.s2,x);
-		displayAST(y);			
+		AST y = applyNode(s->fields.subtrees.s2,x);			
 		return performAction(simplify(y));
 	}
 	if(s->kind == BASIC_FUNC_NK)
@@ -71,7 +70,8 @@ AST performAction(AST t)
 				if(x->kind == ERROR_NK)
 					return errorNode(x->fields.stringval);
 				AST y = applyBasicFunc(x,"head");
-				printValue(simplify(y));
+				AST tmp = simplify(y);
+				printValue(simplify(tmp));
 				y = applyBasicFunc(x,"tail");
 				x = simplify(y);
 			}

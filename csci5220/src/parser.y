@@ -16,8 +16,10 @@
 #include "lexer.h"
 #include "interpreter.h"
 #include "symboltable.h"
+#include "ast.h"
 #define YYDEBUG 1
 void installDefintions(AST lhs, AST body);
+AST installFunction(AST id, AST body);
 void yyerror(char const *s);
 int error_occured;
 int funcNum;
@@ -67,6 +69,10 @@ int funcNum;
 %type <tree> Id
 %type <tree> List
 %type <tree> ExprList
+%type <tree> Case
+%type <tree> Term
+%type <tree> Fact
+%type <tree> Action
 
 %%
 Program		: 
@@ -82,18 +88,15 @@ Definitions	: Definition
 
 Definition	: TOK_DEF IdList '=' Expr TOK_END
 			{  
+				//displayAST($4);				
 				installDefintions($2, $4);
 			}
 		| error TOK_END
 		;
 
-Expr		: Id
+Expr		: '(' Expr ')'
 			{
-				$$ = $1;
-			}
-		| TOK_INTEGER
-			{
-				$$ = numberNode($1);
+				$$ = $2;
 			}
 		| TOK_CHARCONST
 			{
@@ -107,31 +110,27 @@ Expr		: Id
 			{
 				$$ = $1;
 			}
-		| '(' Expr ')'
+		| Term	
 			{
-				$$ = $2;
+				$$ = $1;
 			}
 		| Expr Expr %prec JUXT
 			{
 				$$ = applyNode($1,$2);
 			}
 		| Expr TOK_ACTION Expr
-			{
+			{	
 				$$ = applyAction($1,$3);
 			}
-		| Expr TOK_SEMI Expr
+		| Action TOK_SEMI Action
 			{
-				$$ = applyCONS($1,$3);
+				$$ = applyAction($1, installFunction(emptyList(),$3));
 			}
-		| Expr TOK_ARROW Expr
-			{
-				
+		| Id TOK_ARROW Expr
+			{	
+				$$ = installFunction($1, $3);	
 			}
-		| Expr TOK_MULOP Expr
-			{
-				$$ = applyOp($1,$3,$2);
-			}
-		| Expr TOK_ADDOP Expr
+		| Expr TOK_ADDOP Term
 			{
 				$$ = applyOp($1,$3,$2);
 			}
@@ -159,22 +158,31 @@ Expr		: Id
 			{
 				$$ = applyBasicFunc($2, $1);
 			}
-		| TOK_ACTION_FUNC Expr
+		| Action
 			{
-				$$ = applyBasicFunc($2, $1);
+				$$ = $1;
 			}
-		| TOK_READ
+		| TOK_CASE Case TOK_END
 			{
-				$$ = applyBasicFunc(emptyList(),$1);
+				$$ = $2;
 			}
-		| TOK_CASE CaseList '|' TOK_ELSE TOK_THEN Expr TOK_END
 		| TOK_LET Id '=' Expr TOK_IN Expr TOK_END
 			{
 				insertTree($2->fields.stringval, $4);
-				$$ = $6;
+				$$ = applyNode(installFunction($2, $6),$2);
 			}
 		;
 
+
+Action 		: TOK_ACTION_FUNC Expr
+			{
+				$$ = applyBasicFunc($2,$1);
+			}
+		| TOK_READ
+			{
+				$$ = applyBasicFunc(emptyList(), $1);
+			}
+		;
 
 List		: '[' ']'
 			{
@@ -211,14 +219,49 @@ Id		: TOK_ID
 				$$ = idNode($1);
 			}
 
-CaseList	: Case
-		| CaseList '|' Case
+Case		: Expr TOK_THEN Expr '|' TOK_ELSE TOK_THEN Expr
+			{
+				$$ = applyBranch($1,$3,$7);
+			}
+		| Expr TOK_THEN Expr '|' Case
+			{ 
+				$$ = applyBranch($1,$3,$5);
+			} 
 		;
 
-Case		: Expr TOK_THEN Expr
+Term 		: Fact
+		 	{
+				$$ = $1;
+			}
+		| Term TOK_MULOP Fact
+			{
+				$$ = applyOp($1,$3,$2);
+			}
 		;
+
+Fact		: TOK_INTEGER
+			{
+				$$ = numberNode($1);
+			}
+		| Id
+			{
+				$$ = $1;
+			}
+		; 	
 
 %%
+AST installFunction(AST id, AST body)
+{
+	char *str;
+	if(id->kind == EMPTYLIST)
+		str = "";
+	else
+		str =  id->fields.stringval;
+	AST ret = applyFunction(body, funcNum, str);
+	funcNum++;
+	return ret;
+}
+
 void installDefintions(AST lhs, AST body)
 {
 	AST nb = body;
