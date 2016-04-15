@@ -12,6 +12,7 @@
 */
 %{
 #include <stdio.h>
+#include <string.h>
 #include "token.h"
 #include "lexer.h"
 #include "interpreter.h"
@@ -114,6 +115,10 @@ Expr		: '(' Expr ')'
 			{
 				$$ = $1;
 			}
+		| Action
+			{
+				$$ = $1;
+			}		
 		| Expr Expr %prec JUXT
 			{
 				$$ = applyNode($1,$2);
@@ -122,10 +127,6 @@ Expr		: '(' Expr ')'
 			{	
 				$$ = applyAction($1,$3);
 			}
-		| Action TOK_SEMI Action
-			{
-				$$ = applyAction($1, installFunction(emptyList(),$3));
-			}
 		| Id TOK_ARROW Expr
 			{	
 				$$ = installFunction($1, $3);	
@@ -133,6 +134,10 @@ Expr		: '(' Expr ')'
 		| Expr TOK_ADDOP Term
 			{
 				$$ = applyOp($1,$3,$2);
+			}
+		| Action TOK_SEMI Expr
+			{
+				$$ = applyAction($1, installFunction(emptyList(),$3));
 			}
 		| Expr TOK_LOGIC Expr
 			{
@@ -158,10 +163,6 @@ Expr		: '(' Expr ')'
 			{
 				$$ = applyBasicFunc($2, $1);
 			}
-		| Action
-			{
-				$$ = $1;
-			}
 		| TOK_CASE Case TOK_END
 			{
 				$$ = $2;
@@ -169,11 +170,10 @@ Expr		: '(' Expr ')'
 		| TOK_LET Id '=' Expr TOK_IN Expr TOK_END
 			{
 				insertTree($2->fields.stringval, $4);
-				$$ = applyNode(installFunction($2, $6),$2);
+				$$ = applyNode(installFunction($2, $6),$4);
 			}
 		;
-
-
+	
 Action 		: TOK_ACTION_FUNC Expr
 			{
 				$$ = applyBasicFunc($2,$1);
@@ -256,7 +256,10 @@ AST installFunction(AST id, AST body)
 	if(id->kind == EMPTYLIST)
 		str = "";
 	else
-		str =  id->fields.stringval;
+	{
+		str = malloc(strlen(id->fields.stringval)+1);
+		strcpy(str,id->fields.stringval);
+	}
 	AST ret = applyFunction(body, funcNum, str);
 	funcNum++;
 	return ret;
@@ -266,14 +269,16 @@ void installDefintions(AST lhs, AST body)
 {
 	AST nb = body;
 	AST defnode = lhs->fields.subtrees.s1;
-		
-	/*for(AST p = lhs->fields.subtrees.s1; p->next != NULL; p = p->next)
+	insertTree(defnode->fields.stringval, nb);
+/*	AST p = lhs->fields.subtrees.s1;
+	while(p != NULL)
 	{
-		nb = applyFunction(nb, funcNum, nb->name);
-		funcNum++;	
+		nb = applyFunction(nb, funcNum, p->fields.stringval);
+		funcNum++;
+		p = 		
 	}*/
 	
-	insertTree(defnode->fields.stringval, nb);
+
 }
 
 int main(int argc, char** argv)
@@ -293,8 +298,7 @@ int main(int argc, char** argv)
 			return runInterpreter();
 		}
 	}
-	else
-		return 1;
+	return 1;
 }
 
 void yyerror(char const *s)

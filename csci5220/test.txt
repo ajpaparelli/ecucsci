@@ -1,11 +1,9 @@
 def l = ['E','n','t','e','r',' ','a',' ','N','u','m','b','e','r',':',' '] end
-//def n = 1000 end
 
 def main =
-	printList ['E','n','t','e','r',' ','a',' ','N','u','m','b','e','r',':',' '];
-	readInt ~> (
+	printList l ; readInt ~> (
 	n -> 
-	let m = n / 60 in
+	let m = 60 / n in
 		let h = n/3600 in
 			let secs = n - 60*m in
 				let mins = m - 60*h in

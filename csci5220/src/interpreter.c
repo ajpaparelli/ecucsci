@@ -108,6 +108,10 @@ AST performAction(AST t)
 			return errorNode("No action specified");
 		}
 	}
+	else if(s->kind == ERROR_NK)
+	{
+		return errorNode(s->fields.stringval);
+	}
 	else
 	{
 		return errorNode("No action specified");
@@ -135,7 +139,7 @@ int runInterpreter(void)
 		AST ret = performAction(R);
 		if(ret->kind == ERROR_NK)
 		{
-			printf("Error: %s\n",ret->fields.stringval);
+			printf("Runtime Error: %s\n",ret->fields.stringval);
 			return 1;
 		}
 		else if(ret->kind != EMPTYLIST)

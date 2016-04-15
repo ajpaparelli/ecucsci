@@ -633,6 +633,7 @@ AST simplify(AST t)
 				else
 				{
 					AST s = simplify(t->fields.subtrees.s2);
+					
 					if(s->kind == ERROR_NK)
 						ret = errorNode(s->fields.stringval);
 					else 					
