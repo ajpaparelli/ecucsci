@@ -22,6 +22,13 @@
 
 VL headptr;
 
+void abortProgram(char *s, AST t)
+{
+	printf("Runtime error: %s\n", s);
+	displayAST(t);
+	exit(-1);
+}
+
 /* This function will return the head of a list, emptylist is checked before this
 function is called */
 
@@ -171,7 +178,8 @@ AST copyAST(AST r, AST s, int x)
 		}
 		else
 		{
-			return errorNode("Invalid Function Value");
+			abortProgram("Invalid Function Value",r);
+			return NULL;
 		}
 		
 	}
@@ -188,8 +196,8 @@ AST copyAST(AST r, AST s, int x)
 			}
 			else
 			{
-				//parm value does not exist
-				return errorNode("Parameter value does not exist");
+				abortProgram("Parameter value does not exist",r);
+				return NULL;
 			}
 		}
 	}
@@ -218,9 +226,8 @@ AST copyAST(AST r, AST s, int x)
 		return z;		
 	}
 	else if(r->kind == ID_NK)
-	{
-		AST z = copyAST(getTree(r->fields.stringval),s,x);
-		return z;
+	{		
+		return simplify(r);
 	}
 	else if((r->kind == CHARCONST_NK))
 	{
@@ -313,24 +320,18 @@ AST simplify(AST t)
 		else if(t->kind == BRANCH_NK)
 		{
 			AST s = simplify(t->fields.subtrees.s1);
-			AST r = simplify(t->fields.subtrees.s2);
-			AST u = simplify(t->fields.subtrees.s3);
 			if(s->kind == ERROR_NK)
 				ret = errorNode(s->fields.stringval);
-			else if(r->kind == ERROR_NK)
-				ret = errorNode(r->fields.stringval);
-			else if(u->kind == ERROR_NK)
-				ret = errorNode(u->fields.stringval);
 			else if(s->kind == BOOL_NK)
 			{
 				if(s->extra == BOOL_TRUE)
-					ret = r;
+					ret = simplify(t->fields.subtrees.s2);
 				else
-					ret = u;
+					ret = simplify(t->fields.subtrees.s3);
 			}
 			else
 			{
-				ret = errorNode("Conditional does not resolve into a boolean value");
+				abortProgram("Conditional does not resolve into a boolean value",t);
 			}
 		}
 		else if(t->kind == OP_NK)
@@ -352,7 +353,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 				else if(t->extra == SUBOP_OK)
@@ -364,7 +365,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 				else if(t->extra == MULTOP_OK)
@@ -376,7 +377,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 				else if(t->extra == DIVOP_OK)
@@ -393,7 +394,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer type");
+						abortProgram("Operand is not the correct type, must be an integer type",t);
 					}
 				}
 				else if(t->extra == ANDOP_OK)
@@ -411,7 +412,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be a boolean type");
+						abortProgram("Operand is not the correct type, must be a boolean type",t);
 					}
 				}
 				else if(t->extra == OROP_OK)
@@ -429,7 +430,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be a boolean type");
+						abortProgram("Operand is not the correct type, must be a boolean type",t);
 					}
 				}
 				else if(t->extra == NOTOP_OK)
@@ -447,7 +448,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be a boolean type");
+						abortProgram("Operand is not the correct type, must be a boolean type",t);
 					}
 				}
 				else if(t->extra == GT_OK)
@@ -461,7 +462,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 				else if(t->extra == LT_OK)
@@ -475,7 +476,7 @@ AST simplify(AST t)
 					}				
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 				else if(t->extra == EQ_OK)
@@ -503,7 +504,7 @@ AST simplify(AST t)
 					}
 					else
 					{
-						ret = errorNode("Operand is not the correct type, must be an integer");
+						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
 			}
@@ -586,9 +587,9 @@ AST simplify(AST t)
 				if(s->kind == ERROR_NK)
 					ret = errorNode(s->fields.stringval);
 				else if(s->kind == EMPTYLIST)
-					ret = errorNode("Cannot return the head of an empty list");
+					abortProgram("Cannot return the head of an empty list",t);
 				else if(s->kind != CONS_NK)
-					ret = errorNode("Cannot return the head of an non-list");
+					abortProgram("Cannot return the head of an non-list",t);
 				else
 					ret = getHead(s);				
 			}
@@ -598,9 +599,9 @@ AST simplify(AST t)
 				if(s->kind == ERROR_NK)
 					ret = errorNode(s->fields.stringval);
 				else if(s->kind == EMPTYLIST)
-					ret = errorNode("Cannot return the tail of an empty list");
+					abortProgram("Cannot return the tail of an empty list",t);
 				else if(s->kind != CONS_NK)
-					ret = errorNode("Cannot return the tail of an non-list");
+					abortProgram("Cannot return the tail of an non-list",t);
 				else
 					ret = getTail(s);
 			}
@@ -627,8 +628,8 @@ AST simplify(AST t)
 		{
 				AST r = simplify(t->fields.subtrees.s1);
 				if(r->kind != FUNC_NK)
-				{
-					ret = errorNode("Cannot apply a value to a non-funtion");
+				{					
+					abortProgram("Cannot apply a value to a non-funtion",t);
 				}
 				else
 				{
@@ -641,7 +642,7 @@ AST simplify(AST t)
 				}
 		}
 		else
-			ret = errorNode("Unknown token value");
+			abortProgram("Unknown Token Value",t);
 
 	}
 	return ret;
