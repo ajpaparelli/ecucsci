@@ -81,8 +81,8 @@ testsimp: $(SIMP_OFILES)
 testintp: $(INTP_OFILES)
 	$(LINK) -o bin/testintp $(INTP_OFILES)
 
-testparser: $(PARSER_OFILES)
-	$(LINK) -o bin/testparser $(PARSER_OFILES)
+SNF: $(PARSER_OFILES)
+	$(LINK) -o bin/SNF $(PARSER_OFILES)
 
 src/lex.yy.c: src/lexer.lex
 	cd src; flex lexer.lex
