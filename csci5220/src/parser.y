@@ -268,16 +268,16 @@ AST installFunction(AST id, AST body)
 void installDefintions(AST lhs, AST body)
 {
 	AST nb = body;
-	AST defnode = lhs->fields.subtrees.s1;
-	insertTree(defnode->fields.stringval, nb);
-/*	AST p = lhs->fields.subtrees.s1;
-	while(p != NULL)
+	AST p = lhs;
+	AST defnode = p->fields.subtrees.s1;
+	while((p->fields.subtrees.s2 != NULL) && (p->fields.subtrees.s2->kind != EMPTYLIST))
 	{
-		nb = applyFunction(nb, funcNum, p->fields.stringval);
+		nb = applyFunction(nb, funcNum, defnode->fields.stringval);
 		funcNum++;
-		p = 		
-	}*/
-	
+		p = p->fields.subtrees.s2;
+		defnode = p->fields.subtrees.s1;
+	}
+	insertTree(defnode->fields.stringval, nb);	
 
 }
 
