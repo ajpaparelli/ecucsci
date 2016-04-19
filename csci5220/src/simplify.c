@@ -35,29 +35,27 @@ function is called */
 AST getHead(AST t)
 {
 	AST s = simplify(t);
-	while((s->kind != NUMBER_NK) &&
-	      (s->kind != CHARCONST_NK) &&
-	      (s->kind != BOOL_NK))
-	      s = s->fields.subtrees.s1;
-	
-	return s;	
+	if(s->kind == CONS_NK)
+		return s->fields.subtrees.s1;
+	else
+	{
+		abortProgram("Not a valid list",t);
+		return NULL;
+	}	
 }
 
 /* This function will return the tail of a list, emptylist is checked before this
 function is called */
 
 AST getTail(AST t)
-{
-	AST s = NEW(ASTNODE);
-	s->kind = t->kind;
-	s->fields.subtrees.s1 = t->fields.subtrees.s1;
-	s->fields.subtrees.s2 = t->fields.subtrees.s2;
-	if(t->fields.subtrees.s1->kind != CONS_NK)
-		return s->fields.subtrees.s2;
+{	
+	AST s = simplify(t->fields.subtrees.s2);
+	if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
+		return s;
 	else
 	{
-		s->fields.subtrees.s1 = getTail(s->fields.subtrees.s1);		
-		return s;
+		abortProgram("Not a valid list",t);
+		return NULL;
 	}
 }
 
@@ -227,7 +225,7 @@ AST copyAST(AST r, AST s, int x)
 	}
 	else if(r->kind == ID_NK)
 	{		
-		return simplify(r);
+		return r;
 	}
 	else if((r->kind == CHARCONST_NK))
 	{
@@ -385,7 +383,7 @@ AST simplify(AST t)
 					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
 					{
 						if(r->fields.intval == 0)
-							ret = errorNode("Divide by zero error");
+							abortProgram("Divide by zero error",t);
 						else	
 						{
 							int x = s->fields.intval / r->fields.intval;

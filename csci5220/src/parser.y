@@ -4,10 +4,13 @@
 	Class: CSCI 5220
 	Session: Spring 2016
 
-	Description: parser.y defines the grammar rules for the SFL language.
+	Description: parser.y defines the grammar rules for the SFL language, and adds the abstract syntax trees.
 
 	Change Log:
 	2016-04-05: Initial Revision
+	2016-04-18: Added Symantic Parser
+
+	Known Issue: Shift Reduce conflict with Action;Expr rule.
 
 */
 %{
@@ -51,8 +54,8 @@ int funcNum;
 %token TOK_SEMI
 %token TOK_COLON
 
-%nonassoc TOK_ID TOK_INTEGER TOK_CHARCONST TOK_BOOL '[' '(' 
-%nonassoc TOK_CHECK_FUNC TOK_LIST_FUNC TOK_ACTION_FUNC
+%nonassoc TOK_ID TOK_INTEGER TOK_CHARCONST TOK_BOOL '[' '('
+%nonassoc TOK_LIST_FUNC TOK_CHECK_FUNC TOK_ACTION_FUNC 
 %nonassoc TOK_RELOP TOK_LET TOK_CASE TOK_READ
 
 %left TOK_MULOP
@@ -62,6 +65,7 @@ int funcNum;
 %left JUXT
 %left TOK_SEMI
 %left TOK_ACTION
+
 %right TOK_ARROW
 %right TOK_COLON
 
@@ -74,6 +78,7 @@ int funcNum;
 %type <tree> Term
 %type <tree> Fact
 %type <tree> Action
+%type <tree> ListVal
 
 %%
 Program		: 
@@ -88,8 +93,7 @@ Definitions	: Definition
 		;
 
 Definition	: TOK_DEF IdList '=' Expr TOK_END
-			{  
-				//displayAST($4);				
+			{		
 				installDefintions($2, $4);
 			}
 		| error TOK_END
@@ -135,7 +139,7 @@ Expr		: '(' Expr ')'
 			{
 				$$ = applyOp($1,$3,$2);
 			}
-		| Action TOK_SEMI Expr
+		| Action TOK_SEMI Action
 			{
 				$$ = applyAction($1, installFunction(emptyList(),$3));
 			}
@@ -155,7 +159,7 @@ Expr		: '(' Expr ')'
 			{
 				$$ = applyOp($2,NULL,$1);
 			}
-		| TOK_LIST_FUNC Expr
+		| TOK_LIST_FUNC ListVal
 			{
 				$$ = applyBasicFunc($2, $1);
 			}
@@ -191,6 +195,16 @@ List		: '[' ']'
 		| '[' ExprList ']'
 			{
 				$$ = $2;
+			}
+		;
+
+ListVal		: List
+			{
+				$$ = $1;
+			}
+		| Id	
+			{
+				$$ = $1;
 			}
 		;
 
@@ -272,11 +286,16 @@ void installDefintions(AST lhs, AST body)
 	AST defnode = p->fields.subtrees.s1;
 	while((p->fields.subtrees.s2 != NULL) && (p->fields.subtrees.s2->kind != EMPTYLIST))
 	{
-		nb = applyFunction(nb, funcNum, defnode->fields.stringval);
-		funcNum++;
-		p = p->fields.subtrees.s2;
+		nb = installFunction(defnode, nb);
+		printf("Define %s = \n", defnode->fields.stringval);
+                displayAST(nb);
+                printf("\n");
+                p = p->fields.subtrees.s2;
 		defnode = p->fields.subtrees.s1;
 	}
+	printf("Define %s = \n", defnode->fields.stringval);
+        displayAST(nb);
+        printf("\n");
 	insertTree(defnode->fields.stringval, nb);	
 
 }

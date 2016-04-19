@@ -47,6 +47,22 @@ void printValue(AST r)
 		printf("Not a int/char/bool type, cannot print\n");
 }
 
+void displayList(AST r)
+{
+	if(r->kind == EMPTYLIST)
+	{
+		printf("[]");
+		return;
+	}
+	else
+	{
+		printValue(r->fields.subtrees.s1);
+		printf(":");
+		displayList(r->fields.subtrees.s2);
+		return;
+	}
+}
+
 /* This is the Perform Action function, it perform the specified action or return an errorNode
 	if the action conditions are not met. Only works on ACTION NODES, PRINTLIST, PRINT, PRODUCE
 	READINT, and READCHAR actions.  All other node types result in an error. */
@@ -127,30 +143,38 @@ a 0 is returned, otherwise if an error is encountered the error type is displaye
 int runInterpreter(void)
 {
 	AST M = getTree("main");
-	AST R = simplify(M);
-	if((R->kind == ACTION_NK) ||
-	   ((R->kind == BASIC_FUNC_NK) &&
-	   	((R->extra == PRILST_FK) ||
-		(R->extra == PRINT_FK) ||
-		(R->extra == PROD_FK) ||
-		(R->extra == READI_FK) ||
-		(R->extra == READC_FK))))
+	if(M != NULL) 
 	{
-		AST ret = performAction(R);
-		if(ret->kind == ERROR_NK)
+		AST R = simplify(M);
+		if((R->kind == ACTION_NK) ||
+		   ((R->kind == BASIC_FUNC_NK) &&
+		   	((R->extra == PRILST_FK) ||
+			(R->extra == PRINT_FK) ||
+			(R->extra == PROD_FK) ||
+			(R->extra == READI_FK) ||
+			(R->extra == READC_FK))))
 		{
-			printf("Runtime Error: %s\n",ret->fields.stringval);
-			return 1;
-		}
-		else if(ret->kind != EMPTYLIST)
+			AST ret = performAction(R);
+			if(ret->kind != EMPTYLIST)
+			{
+				if(ret->kind == CONS_NK)
+					displayList(ret);
+				else
+					displayAST(ret);
+			}
+		} 
+		else
 		{
-			displayAST(ret);
+			AST S = simplify(R);
+			if(S->kind != EMPTYLIST)
+			{
+				if(S->kind == CONS_NK)
+					displayList(S);
+				else
+					displayAST(R);
+			}
 		}
-	} 
-	else
-	{
-		displayAST(R);
+		printf("\n");
 	}
-	printf("\n");
 	return 0;
-}
+}	
