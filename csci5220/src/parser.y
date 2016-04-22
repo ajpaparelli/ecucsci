@@ -21,6 +21,7 @@
 #include "interpreter.h"
 #include "symboltable.h"
 #include "ast.h"
+#include "gc.h"
 #define YYDEBUG 1
 void installDefintions(AST lhs, AST body);
 AST installFunction(AST id, AST body);
@@ -307,6 +308,7 @@ int main(int argc, char** argv)
 	error_occured = 0;
 	if(argc == 2) 
 	{
+		initialize_gc();
 		yyin = fopen(argv[1],"r");
 		if(yyin == NULL)
 			return 1;

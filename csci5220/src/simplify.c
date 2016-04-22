@@ -18,7 +18,7 @@
 #include "ast.h"
 #include "symboltable.h"
 #include "simplify.h"
-
+#include "gc.h"
 
 VL headptr;
 
@@ -169,6 +169,7 @@ AST copyAST(AST r, AST s, int x)
 		if(nv != -1)
 		{
 			AST z = NEW(ASTNODE);
+			//AST z = getNewAST();			
 			z->kind = r->kind;
 			z->extra = nv;
 			z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
@@ -202,6 +203,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == OP_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();		
 		z->kind = r->kind;
 		z->extra = r->extra;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
@@ -211,6 +213,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == NUMBER_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();		
 		z->kind = r->kind;
 		z->fields.intval = r->fields.intval;
 		return z;
@@ -218,6 +221,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == APPLY_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();
 		z->kind = r->kind;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
 		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
@@ -230,6 +234,7 @@ AST copyAST(AST r, AST s, int x)
 	else if((r->kind == CHARCONST_NK))
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();
 		z->kind = r->kind;
 		z->fields.stringval = r->fields.stringval;
 		return z;		
@@ -237,6 +242,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == BRANCH_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();		
 		z->kind = r->kind;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
 		z->fields.subtrees.s2 = copyAST(r->fields.subtrees.s2,s,x);
@@ -246,6 +252,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == BASIC_FUNC_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();
 		z->kind = r->kind;
 		z->extra = r->extra;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
@@ -254,6 +261,7 @@ AST copyAST(AST r, AST s, int x)
 	else if((r->kind == COLON_NK) || (r->kind == CONS_NK) || (r->kind == ACTION_NK))
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();		
 		z->kind = r->kind;
 		z->extra = r->extra;
 		z->fields.subtrees.s1 = copyAST(r->fields.subtrees.s1,s,x);
@@ -263,6 +271,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == BOOL_NK)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();
 		z->kind = r->kind;
 		z->extra = r->extra;
 		return z;		
@@ -270,6 +279,7 @@ AST copyAST(AST r, AST s, int x)
 	else if(r->kind == EMPTYLIST)
 	{
 		AST z = NEW(ASTNODE);
+		//AST z = getNewAST();		
 		z->kind = r->kind;
 		return z;		
 	}	

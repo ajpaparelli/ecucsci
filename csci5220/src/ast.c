@@ -19,6 +19,13 @@
 #include "ast.h"
 #include "stringtable.h"
 #include "allocate.h"
+#include "gc.h"
+
+AST getNewNode(void)
+{
+	//return NEW(ASTNODE);
+	return getNewAST();
+}
 
 /* Return boolean name based off the value of the incoming integer definition */
 char* getBoolName(const int i)
@@ -171,7 +178,7 @@ int getFunctionDef(const char* s)
 
 AST numberNode(const int n)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = NUMBER_NK;
 	t->fields.intval = n;
 	return t;
@@ -181,7 +188,7 @@ AST numberNode(const int n)
 
 AST idNode(const char* s)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = ID_NK;
 	t->fields.stringval = intern(s);
 	return t;
@@ -191,7 +198,7 @@ AST idNode(const char* s)
 
 AST charNode(const char* s)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = CHARCONST_NK;
 	t->fields.stringval = intern(s);
 	return t;
@@ -201,7 +208,7 @@ AST charNode(const char* s)
 
 AST boolNode(const char* s)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = BOOL_NK;
 	t->extra = getBoolDef(s);
 	return t;
@@ -211,7 +218,7 @@ AST boolNode(const char* s)
 
 AST applyParam(const int n)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = PARAM_NK;
 	t->fields.intval = n;
 	return t;
@@ -221,14 +228,14 @@ AST applyParam(const int n)
 
 AST emptyList(void)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = EMPTYLIST;
 	return t;
 }
 
 AST errorNode(const char* s)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = ERROR_NK;
 	t->fields.stringval = intern(s);
 	return t;
@@ -238,7 +245,7 @@ AST errorNode(const char* s)
 
 AST applyNode(AST A, AST B)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = APPLY_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;	
@@ -249,7 +256,7 @@ AST applyNode(AST A, AST B)
 
 AST applyOp(AST A, AST B, const char* opKind)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = OP_NK;
 	t->extra = getOperatorDef(opKind);	
 	t->fields.subtrees.s1 = A;
@@ -264,7 +271,7 @@ AST applyOp(AST A, AST B, const char* opKind)
 
 AST applyCOLON(AST A, AST B)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = COLON_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;
@@ -275,7 +282,7 @@ AST applyCOLON(AST A, AST B)
 
 AST applyCONS(AST A, AST B)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = CONS_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;
@@ -290,7 +297,7 @@ AST applyCONS(AST A, AST B)
 
 AST applyBranch(AST A, AST B, AST C)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = BRANCH_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;
@@ -302,7 +309,7 @@ AST applyBranch(AST A, AST B, AST C)
 
 AST applyBasicFunc(AST A, const char* FuncKind)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = BASIC_FUNC_NK;
 	t->extra = getFunctionDef(FuncKind);
 	t->fields.subtrees.s1 = A;
@@ -313,7 +320,7 @@ AST applyBasicFunc(AST A, const char* FuncKind)
 
 AST applyAction(AST A, AST B)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = ACTION_NK;
 	t->fields.subtrees.s1 = A;
 	t->fields.subtrees.s2 = B;
@@ -324,7 +331,7 @@ AST applyAction(AST A, AST B)
 
 AST applyFunction(AST A, const int n, const char* s)
 {
-	AST t = NEW(ASTNODE);
+	AST t = getNewNode();
 	t->kind = FUNC_NK;
 	t->extra = n;
 	t->fields.subtrees.s1 = A;
