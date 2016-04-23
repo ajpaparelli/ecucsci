@@ -1,10 +1,12 @@
 #include "ast.h"
 #include "gc.h"
 #include "allocate.h"
+#include "symboltable.h"
 #include <stdio.h>
 
 
 AST freelist;
+AST rememberList;
 ASTTABLE astMem;
 
 void abortCollect(void)
@@ -43,7 +45,7 @@ AST getNewAST()
 {
 	if(freelist == NULL)
 	{
-		if(garbageCollect() == 0)
+		if(garbageCollect() > 0)
 			return returnHead();
 		else
 		{
@@ -103,6 +105,22 @@ void markALL(AST t)
 	mark(t);	
 }
 
+int sweepNodes()
+{
+	int i;
+	int freeNodes = 0;
+	for(i = 1; i < AST_MEM_SIZE; i++)
+	{
+		if(astMem[i]->mark == 0)
+		{
+			freelist = addFreeNode(freelist, astMem[i]);
+			freeNodes++;
+		}
+		astMem[i] -> mark = 0;
+	}			
+	return freeNodes;
+}
+
 int garbageCollect()
 {
 	int x;
@@ -111,6 +129,8 @@ int garbageCollect()
 		if(astMem[x] != NULL)
 			astMem[x]->mark = 0;
 	}
-	return 0;
+	markTable();
+	//markRememeber
+	return sweepNodes();
 }
 		
