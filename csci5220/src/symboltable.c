@@ -26,6 +26,7 @@
 #include <string.h>
 #include "symboltable.h"
 #include "ast.h"
+#include "gc.h"
 
 TABLE symTable;
 int tableSize = TABLE_SIZE;
@@ -267,4 +268,24 @@ int insertTree(const char* key, AST A)
 	{
 		return -1;
 	}
+}
+
+void markList(HASH hn)
+{
+	if(hn != NULL)
+	{
+		markALL(hn->astTree);
+		markList(hn->next);
+	}
+	
+}
+
+void markTable(void)
+{
+	int i = 0;
+	if(symTable != NULL)
+	{
+		for(i = 0; i < tableSize; i = i + 1)
+			markList(symTable[i]);
+	}	
 }
