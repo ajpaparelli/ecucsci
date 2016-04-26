@@ -18,6 +18,8 @@
 #include "symboltable.h"
 #include "ast.h"
 #include "simplify.h"
+#include "gc.h"
+
 
 /* This function used to output the contents of a number/const char/boolean node */
 
@@ -70,13 +72,19 @@ void displayList(AST r)
 AST performAction(AST t)
 {
 	AST s = t;
+	AST ret;
+	
 	if(s->kind == ACTION_NK)
 	{
+		REMLIST mark = getMark();
 		AST x = performAction(s->fields.subtrees.s1);
-		AST y = applyNode(s->fields.subtrees.s2,x);			
-		return performAction(simplify(y));
+		remember(x);
+		AST y = applyNode(s->fields.subtrees.s2,x);
+		remember(y);
+		ret = performAction(simplify(y));
+		forget(mark);
 	}
-	if(s->kind == BASIC_FUNC_NK)
+	else if(s->kind == BASIC_FUNC_NK)
 	{
 		if(s->extra == PRILST_FK)
 		{
@@ -84,55 +92,58 @@ AST performAction(AST t)
 			while(x->kind != EMPTYLIST)
 			{	
 				if(x->kind == ERROR_NK)
-					return errorNode(x->fields.stringval);
+					ret= errorNode(x->fields.stringval);
 				AST y = applyBasicFunc(x,"head");
 				AST tmp = simplify(y);
 				printValue(simplify(tmp));
 				y = applyBasicFunc(x,"tail");
 				x = simplify(y);
 			}
-			return emptyList();
+			ret = emptyList();
 		}
 		else if(s->extra == PRINT_FK)
 		{
+			REMLIST mark = getMark();
 			AST r = simplify(s->fields.subtrees.s1);
+			remember(r);
 			printValue(r);
-			return emptyList();
+			forget(mark);
+			ret = emptyList();
 		}
 		else if(s->extra == PROD_FK)
 		{
-			return simplify(s->fields.subtrees.s1);
+			ret = simplify(s->fields.subtrees.s1);
 		}
 		else if(s->extra == READI_FK)
 		{
 			char str[11];
 			if(fgets(str,11,stdin) != NULL)		
-				return numberNode(atoi(str));
+				ret = numberNode(atoi(str));
 			else
-				return errorNode("Not a valid number");
+				ret = errorNode("Not a valid number");
 		}
 		else if(s->extra == READC_FK)
 		{
 			char str[2];
 			if(fgets(str,2,stdin) != NULL)		
-				return charNode(str);
+				ret = charNode(str);
 			else
-				return errorNode("Not a valid character");
+				ret = errorNode("Not a valid character");
 		}
 		else
 		{
-			return errorNode("No action specified");
+			ret = errorNode("No action specified");
 		}
 	}
 	else if(s->kind == ERROR_NK)
 	{
-		return errorNode(s->fields.stringval);
+		ret = errorNode(s->fields.stringval);
 	}
 	else
 	{
-		return errorNode("No action specified");
+		ret = errorNode("No action specified");
 	}
-
+	return ret;
 }
 
 /* This is the main interpreter function, if the tree(R) obtained by simplifying tree M is an action type
@@ -142,6 +153,7 @@ a 0 is returned, otherwise if an error is encountered the error type is displaye
 
 int runInterpreter(void)
 {
+	REMLIST mark = getMark();
 	AST M = getTree("main");
 	if(M != NULL) 
 	{
@@ -176,5 +188,6 @@ int runInterpreter(void)
 		}
 		printf("\n");
 	}
+	forget(mark);
 	return 0;
 }	
