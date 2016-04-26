@@ -76,13 +76,9 @@ AST performAction(AST t)
 	
 	if(s->kind == ACTION_NK)
 	{
-		REMLIST mark = getMark();
 		AST x = performAction(s->fields.subtrees.s1);
-		remember(x);
 		AST y = applyNode(s->fields.subtrees.s2,x);
-		remember(y);
 		ret = performAction(simplify(y));
-		forget(mark);
 	}
 	else if(s->kind == BASIC_FUNC_NK)
 	{
@@ -103,11 +99,8 @@ AST performAction(AST t)
 		}
 		else if(s->extra == PRINT_FK)
 		{
-			REMLIST mark = getMark();
 			AST r = simplify(s->fields.subtrees.s1);
-			remember(r);
 			printValue(r);
-			forget(mark);
 			ret = emptyList();
 		}
 		else if(s->extra == PROD_FK)
@@ -153,7 +146,6 @@ a 0 is returned, otherwise if an error is encountered the error type is displaye
 
 int runInterpreter(void)
 {
-	REMLIST mark = getMark();
 	AST M = getTree("main");
 	if(M != NULL) 
 	{
@@ -188,6 +180,5 @@ int runInterpreter(void)
 		}
 		printf("\n");
 	}
-	forget(mark);
 	return 0;
 }	
