@@ -6,13 +6,43 @@
 
 
 AST freelist;
-AST rememberList;
+REMLIST headptr;
 ASTTABLE astMem;
 
 void abortCollect(void)
 {
 	printf("Error: Unable to allocate any more AST nodes\n");
 	exit(-1);
+}
+
+REMLIST getMark(void)
+{
+	return headptr;
+}
+
+REMLIST addNewNode(REMLIST h, AST t)
+{
+	REMLIST ptr = NEW(REMEMBERLIST);
+	ptr->tree = &t;
+	ptr->next = h;
+	return ptr;
+}
+
+void remember(AST t)
+{
+	headptr = addNewNode(headptr, t);
+}
+
+void forget(REMLIST inPtr)
+{
+	REMLIST ptr;
+	while(headptr != inPtr)
+	{
+		printf("forget\n");
+		ptr = headptr;
+		headptr = headptr->next;
+		free(ptr);
+	}		
 }
 
 AST addFreeNode(AST list, AST node)
@@ -121,6 +151,16 @@ int sweepNodes()
 	return freeNodes;
 }
 
+void markRemember(void)
+{
+	REMLIST ptr = headptr;
+	while(ptr != NULL)
+	{
+		markALL(*ptr->tree);
+		ptr = ptr->next;
+	}		
+}
+
 int garbageCollect()
 {
 	int x;
@@ -130,7 +170,7 @@ int garbageCollect()
 			astMem[x]->mark = 0;
 	}
 	markTable();
-	//markRememeber
+	//markRemember();
 	return sweepNodes();
 }
 		
