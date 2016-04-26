@@ -58,9 +58,9 @@ void displayList(AST r)
 	}
 	else
 	{
-		printValue(r->fields.subtrees.s1);
+		printValue(simplify(r->fields.subtrees.s1));
 		printf(":");
-		displayList(r->fields.subtrees.s2);
+		displayList(simplify(r->fields.subtrees.s2));
 		return;
 	}
 }
