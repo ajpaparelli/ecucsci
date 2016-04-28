@@ -1,3 +1,18 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: gc.c contains all function used by the garbage collector. 
+	
+
+	Change Log:
+	2016-04-27: Initial Revision
+
+	Known issue: Segmemntation fault in garbage collection, disabled allocation from AST tree;
+*/
+
 #include "ast.h"
 #include "gc.h"
 #include "allocate.h"

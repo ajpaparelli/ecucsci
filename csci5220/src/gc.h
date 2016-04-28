@@ -1,3 +1,17 @@
+/*
+
+	Name: Adrian J. Paparelli
+	Class: CSCI 5220
+	Session: Spring 2016
+
+	Description: gc.h contains all headers for function used by the garbage collector. 
+	
+
+	Change Log:
+	2016-04-27: Initial Revision
+
+*/
+
 #ifndef GC_H_
 #define GC_H_
 #include "ast.h"
