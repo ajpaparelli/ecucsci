@@ -38,7 +38,6 @@ void forget(REMLIST inPtr)
 	REMLIST ptr;
 	while(headptr != inPtr)
 	{
-		printf("forget\n");
 		ptr = headptr;
 		headptr = headptr->next;
 		free(ptr);
@@ -72,11 +71,16 @@ AST returnHead(void)
 }
 
 AST getNewAST()
-{
+{		
+	return NEW(ASTNODE);
+/*
 	if(freelist == NULL)
 	{
-		if(garbageCollect() > 0)
+		int s = garbageCollect();
+		if(s > 0)
+		{
 			return returnHead();
+		}
 		else
 		{
 			abortCollect();
@@ -85,6 +89,7 @@ AST getNewAST()
 	}
 	else
 		return returnHead();
+*/
 }
 
 void mark(AST t)
@@ -164,13 +169,15 @@ void markRemember(void)
 int garbageCollect()
 {
 	int x;
+
 	for(x = 0; x < AST_MEM_SIZE-1; x++)
 	{
 		if(astMem[x] != NULL)
 			astMem[x]->mark = 0;
-	}
-	markTable();
-	//markRemember();
-	return sweepNodes();
+	} 
+	markTable();	
+	markRemember();
+	x = sweepNodes();
+	return x;
 }
 		

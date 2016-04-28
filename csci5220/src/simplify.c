@@ -301,8 +301,10 @@ if there are any errors during the simplification an errorNode is returned to he
 AST simplify(AST t)
 {
 	AST ret = NULL;
+	REMLIST mark;
 	if(t != NULL)
 	{
+		mark = getMark();
 		if(t->kind == ID_NK)
 			ret = simplify(getTree(t->fields.stringval));
 		else if((t->kind == NUMBER_NK) || (t->kind == CHARCONST_NK)
@@ -313,17 +315,15 @@ AST simplify(AST t)
 		else if(t->kind == COLON_NK)
 		{	
 			AST s = simplify(t->fields.subtrees.s1);
+			remember(s);
 			AST r = simplify(t->fields.subtrees.s2);
-			if(s->kind == ERROR_NK)
-				ret = errorNode(s->fields.stringval);
-			else if(r->kind == ERROR_NK)
-				ret = errorNode(s->fields.stringval);
-			else			
-				ret = applyCONS(s, r);
+			remember(r);		
+			ret = applyCONS(s, r);
 		}
 		else if(t->kind == BRANCH_NK)
 		{
 			AST s = simplify(t->fields.subtrees.s1);
+			remember(s);
 			if(s->kind == ERROR_NK)
 				ret = errorNode(s->fields.stringval);
 			else if(s->kind == BOOL_NK)
@@ -334,20 +334,14 @@ AST simplify(AST t)
 					ret = simplify(t->fields.subtrees.s3);
 			}
 			else
-			{
 				abortProgram("Conditional does not resolve into a boolean value",t);
-			}
 		}
 		else if(t->kind == OP_NK)
 		{
 			AST s = simplify(t->fields.subtrees.s1);
+			remember(s);
 			AST r = simplify(t->fields.subtrees.s2);
-			if(s->kind == ERROR_NK)
-				ret = errorNode(s->fields.stringval);
-			else if(r->kind == ERROR_NK)
-				ret = errorNode(s->fields.stringval);
-			else
-			{
+			remember(s);
 				if(t->extra == PLUSOP_OK)
 				{
 					if((s->kind == NUMBER_NK) && (r->kind == NUMBER_NK))
@@ -356,9 +350,7 @@ AST simplify(AST t)
 						ret = numberNode(x);
 					}
 					else
-					{
 						abortProgram("Operand is not the correct type, must be an integer",t);
-					}
 				}
 				else if(t->extra == SUBOP_OK)
 				{
@@ -511,16 +503,14 @@ AST simplify(AST t)
 						abortProgram("Operand is not the correct type, must be an integer",t);
 					}
 				}
-			}
 		}
 		else if(t->kind == BASIC_FUNC_NK)
 		{
 			if(t->extra == ISINT_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == NUMBER_NK)
+				remember(s);				
+				if(s->kind == NUMBER_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -528,9 +518,8 @@ AST simplify(AST t)
 			else if(t->extra == ISBOOL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == BOOL_NK)
+				remember(s);				
+				if(s->kind == BOOL_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -538,9 +527,8 @@ AST simplify(AST t)
 			else if(t->extra == ISLIST_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
+				remember(s);
+				if((s->kind == CONS_NK) || (s->kind == EMPTYLIST))
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -548,9 +536,8 @@ AST simplify(AST t)
 			else if(t->extra == ISCHAR_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == CHARCONST_NK)
+				remember(s);
+				if(s->kind == CHARCONST_NK)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -558,9 +545,8 @@ AST simplify(AST t)
 			else if(t->extra == ISFUNC_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if((s->kind == FUNC_NK) || (s->kind == BASIC_FUNC_NK))
+				remember(s);
+				if((s->kind == FUNC_NK) || (s->kind == BASIC_FUNC_NK))
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -568,9 +554,8 @@ AST simplify(AST t)
 			else if(t->extra == ISACTION_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == ACTION_NK)				
+				remember(s);
+				if(s->kind == ACTION_NK)				
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -578,9 +563,8 @@ AST simplify(AST t)
 			else if(t->extra == ISNULL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == EMPTYLIST)
+				remember(s);
+				if(s->kind == EMPTYLIST)
 					ret = boolNode("true");
 				else
 					ret = boolNode("false");
@@ -588,9 +572,8 @@ AST simplify(AST t)
 			else if(t->extra == HEAD_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == EMPTYLIST)
+				remember(s);
+				if(s->kind == EMPTYLIST)
 					abortProgram("Cannot return the head of an empty list",t);
 				else if(s->kind != CONS_NK)
 					abortProgram("Cannot return the head of an non-list",t);
@@ -600,9 +583,8 @@ AST simplify(AST t)
 			else if(t->extra == TAIL_FK)
 			{
 				AST s = simplify(t->fields.subtrees.s1);
-				if(s->kind == ERROR_NK)
-					ret = errorNode(s->fields.stringval);
-				else if(s->kind == EMPTYLIST)
+				remember(s);
+				if(s->kind == EMPTYLIST)
 					abortProgram("Cannot return the tail of an empty list",t);
 				else if(s->kind != CONS_NK)
 					abortProgram("Cannot return the tail of an non-list",t);
@@ -616,9 +598,7 @@ AST simplify(AST t)
 			else if((t->extra == PRINT_FK) || (t->extra == PRILST_FK) || (t->extra == PROD_FK))
 			{
 				ret = t;
-			}
-			
-			
+			}			
 		}
 		else if(t->kind == ACTION_NK)
 		{
@@ -631,6 +611,7 @@ AST simplify(AST t)
 		else if(t->kind == APPLY_NK)
 		{
 				AST r = simplify(t->fields.subtrees.s1);
+				remember(r);
 				if(r->kind != FUNC_NK)
 				{					
 					abortProgram("Cannot apply a value to a non-funtion",t);
@@ -638,17 +619,16 @@ AST simplify(AST t)
 				else
 				{
 					AST s = simplify(t->fields.subtrees.s2);
-					
-					if(s->kind == ERROR_NK)
-						ret = errorNode(s->fields.stringval);
-					else 					
-						ret = simplify(applyValue(r,s));
+					remember(s);
+					ret = simplify(applyValue(r,s));
 				}
 		}
 		else
 			abortProgram("Unknown Token Value",t);
 
 	}
+	remember(ret);
+	forget(mark);
 	return ret;
 
 }
