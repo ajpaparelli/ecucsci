@@ -44,4 +44,6 @@ void deleteTable();
 
 int insertTree(const char* key, AST A);
 
+void markTable(void);
+
 #endif

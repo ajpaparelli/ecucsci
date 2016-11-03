@@ -27,10 +27,10 @@ char *randstring(size_t length) {
 int main()
 {
 
-AST fn1 = applyParam(1);
-AST fn2 = applyParam(1);
+AST fn1 = idNode("x");
+AST fn2 = idNode("x");
 AST fn3 = applyOp(fn1, fn2, "+");
-AST fn4 = applyFunction(fn3, 1);
+AST fn4 = applyFunction(fn3, 1, "x");
 
 int i;
 

@@ -1,0 +1,15 @@
+def l = ['E','n','t','e','r',' ','a',' ','N','u','m','b','e','r',':',' '] end
+
+def main =
+	printList l ; readInt ~> (
+	n -> 
+	let m = 60 / n in
+		let h = n/3600 in
+			let secs = n - 60*m in
+				let mins = m - 60*h in
+					printList [h,':',mins,':',secs]
+				end
+			end
+		end
+	end)
+end

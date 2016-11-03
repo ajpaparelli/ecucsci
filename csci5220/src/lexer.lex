@@ -16,8 +16,9 @@
 #include "token.h"
 #include "lexer.h"
 #include "stringtable.h"
-
-YYSTYPE yylval;
+#include "y.tab.h"
+#include <string.h>
+#include <stdio.h>
 %}
 
 %option noinput
@@ -32,81 +33,104 @@ number  {digit}+
 
 [ \t] 		{}
 
-\'(.|\\\\|\\n)\' {yylval.str = intern(yytext);
+\'(.|\\\\|\\n)\' { char* tmpstr = malloc(strlen(yytext+1));
+		  strncpy(tmpstr,yytext+1,strlen(yytext)-2);
+		  yylval.str = intern(tmpstr);
+		  free(tmpstr);
 		  return TOK_CHARCONST;
 		}
 
 "//".*\n|"\n"	{linenum++;
 		}
 
-"("|")"|";"|":"|","|"["|"]"|"|"|"=" { yylval.str = yytext;
+"("|")"|","|"["|"]"|"|"|"=" { yylval.str = intern(yytext);
 		return yytext[0];
 		}
 
-"->"		{yylval.str = yytext;
+":"		{yylval.str = intern(yytext);
+		 return TOK_COLON;
+		}
+
+";"		{yylval.str = intern(yytext);
+		 return TOK_SEMI;
+		}
+
+"->"		{yylval.str = intern(yytext);
 		 return TOK_ARROW;
 		}
 
-"~>"		{yylval.str = yytext;
-		 return TOK_PROD;
+"~>"		{yylval.str = intern(yytext);
+		 return TOK_ACTION;
 		}
 
-"=>"		{yylval.str = yytext;
+"=>"		{yylval.str = intern(yytext);
 		 return TOK_THEN;
 		}
 
-true|false      {yylval.str = yytext;
+true|false      {yylval.str = intern(yytext);
 		 return TOK_BOOL;
 		}
 
-"*"|"/"		{yylval.str = yytext;
+"*"|"/"		{yylval.str = intern(yytext);
 		 return TOK_MULOP;
 		}
 
-"+"|"-"		{yylval.str = yytext;
+"+"|"-"		{yylval.str = intern(yytext);
 		 return TOK_ADDOP;
 		}
 
-"=="|">"|"<"	{yylval.str = yytext;
+"=="|">"|"<"	{yylval.str = intern(yytext);
 		 return TOK_RELOP;
 		}
 
 
 
-def     	{yylval.str = yytext;
+def     	{yylval.str = intern(yytext);
 		 return TOK_DEF;
 		}
 
-end		{yylval.str = yytext;
+end		{yylval.str = intern(yytext);
 		 return TOK_END;
 		}
 
-let		{yylval.str = yytext;
+let		{yylval.str = intern(yytext);
 		 return TOK_LET;
 		}
 
-in		{yylval.str = yytext;
+in		{yylval.str = intern(yytext);
 		 return TOK_IN;
 		}
 
-head|tail	{yylval.str = yytext;
+head|tail	{yylval.str = intern(yytext);
 	 	 return TOK_LIST_FUNC;
 		}	
 
-print|printList|produce|readChar|readInt {yylval.str = yytext;
-		 			  return TOK_ACTION_FUNC;
-					 }
+print|printList|produce {yylval.str = intern(yytext);
+		 	 return TOK_ACTION_FUNC;
+			}
 
-isList|isNull|isBool|isFunction|isInt|isAction	{yylval.str = yytext;
+readChar|readInt {yylval.str = intern(yytext);
+		  return TOK_READ;
+		 }
+
+isList|isNull|isBool|isFunction|isInt|isAction	{yylval.str = intern(yytext);
 		 		 	 return TOK_CHECK_FUNC;
 					}
 
-case|if|else	{yylval.str = yytext;
-		 return TOK_IFOP;
+case		{yylval.str = intern(yytext);
+		 return TOK_CASE;
 		}
 
-and|or|not	{yylval.str = yytext;
+else		{yylval.str = intern(yytext);
+		 return TOK_ELSE;
+		}
+
+and|or		{yylval.str = intern(yytext);
 		 return TOK_LOGIC;
+	        }
+
+not		{yylval.str = intern(yytext);
+		 return TOK_NOT;
 	        }
 
 {id}    	{yylval.str = intern(yytext);
