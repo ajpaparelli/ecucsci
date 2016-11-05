@@ -1,5 +1,7 @@
 package csci6410.djikstra;
 
+import java.util.ArrayList;
+
 public class MinHeap {
 	private HeapNode heap[];
 	private int position[];
@@ -105,12 +107,13 @@ public class MinHeap {
 		return min;
 	}
 	
-	public void heapDecreaseKey(int V, double distance)
+	public void heapDecreaseKey(int V, double distance, ArrayList<Edge> edges)
 	{
 		int pos = position[V];
 		
 		heap[pos].setDistance(distance);
 		heap[pos].setVertex(V);
+		heap[pos].setEdges(edges);
 		
 		while((pos != 0) && (heap[pos].getDistance() < heap[parent(pos)].getDistance()))
 		{

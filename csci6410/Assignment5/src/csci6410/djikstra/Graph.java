@@ -1,6 +1,7 @@
 package csci6410.djikstra;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class Graph {
 	
@@ -31,6 +32,7 @@ public class Graph {
 		HeapNode nodes[] = new HeapNode[V];
 		MinHeap heap = new MinHeap(V);
 		double distance[] = new double[V];
+		ArrayList<Edge> edges = new ArrayList<Edge>();
 		
 		for(int i = 0; i < this.V; i++)
 		{
@@ -42,7 +44,8 @@ public class Graph {
 		
 		distance[source] = 0;
 		
-		heap.heapDecreaseKey(source, distance[source]);
+		edges.add(new Edge(0,0,0.0));
+		heap.heapDecreaseKey(source, distance[source],edges);
 	
 
 		while(heap.getSize() != 0)
@@ -59,7 +62,10 @@ public class Graph {
 				if(((distance[u] != Double.MAX_VALUE) && (distance[v] > distance[u] + weight) ))
 				{
 					distance[v] = distance[u] + weight;
-					heap.heapDecreaseKey(v, distance[v]);
+					edges = minHeapNode.getEdges();
+					edges.add(curEdge);
+					
+					heap.heapDecreaseKey(v, distance[v], edges);
 				}
 				
 				curEdgeNode = curEdgeNode.getNext();			
