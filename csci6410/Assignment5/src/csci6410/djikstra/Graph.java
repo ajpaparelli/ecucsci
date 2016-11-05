@@ -32,7 +32,6 @@ public class Graph {
 		HeapNode nodes[] = new HeapNode[V];
 		MinHeap heap = new MinHeap(V);
 		double distance[] = new double[V];
-		ArrayList<Edge> edges = new ArrayList<Edge>();
 		
 		for(int i = 0; i < this.V; i++)
 		{
@@ -43,9 +42,8 @@ public class Graph {
 		heap.buildMinHeap(nodes);
 		
 		distance[source] = 0;
-		
-		edges.add(new Edge(0,0,0.0));
-		heap.heapDecreaseKey(source, distance[source],edges);
+			
+		heap.heapDecreaseKey(source, distance[source]);
 	
 
 		while(heap.getSize() != 0)
@@ -53,6 +51,7 @@ public class Graph {
 			HeapNode minHeapNode = heap.heapExtractMin();
 			int u = minHeapNode.getVertex();
 			EdgeNode curEdgeNode = AdjList[u];
+
 			while(curEdgeNode != null)
 			{
 				Edge curEdge = curEdgeNode.getEdge();
@@ -62,10 +61,10 @@ public class Graph {
 				if(((distance[u] != Double.MAX_VALUE) && (distance[v] > distance[u] + weight) ))
 				{
 					distance[v] = distance[u] + weight;
-					edges = minHeapNode.getEdges();
-					edges.add(curEdge);
-					
-					heap.heapDecreaseKey(v, distance[v], edges);
+					ArrayList<Edge> edgeLst = new ArrayList<Edge>(nodes[u].getEdges());
+					edgeLst.add(curEdge);
+					nodes[v].setEdges(edgeLst);
+					heap.heapDecreaseKey(v, distance[v]);
 				}
 				
 				curEdgeNode = curEdgeNode.getNext();			
@@ -78,9 +77,26 @@ public class Graph {
 		{
 			System.out.println("Vertex: " + Integer.toString(i));
 			if(distance[i] == Double.MAX_VALUE)
+			{
 				System.out.println("No Path Defined");
+			}
 			else
+			{
 				System.out.println("Distance: " + df2.format(distance[i]));
+				ArrayList<Edge> edges = nodes[i].getEdges();
+				System.out.print("Path: ");
+				if(i == source)
+					System.out.print("Source Vertex");
+				else
+				{
+					for(int j = 0; j < edges.size(); j++)
+					{
+						int vertex = edges.get(j).getSource();
+						System.out.print(Integer.toString(vertex) + " ");
+					}
+				}
+				System.out.print("\n\n");
+			}
 		}
 		
 

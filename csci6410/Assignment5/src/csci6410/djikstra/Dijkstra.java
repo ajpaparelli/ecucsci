@@ -18,7 +18,7 @@ public class Dijkstra {
 		g.addEdge(5, 7, 4.30);
 		g.addEdge(6, 8, 2.30);
 		g.addEdge(7, 8, 5.60);
-		g.shortestPath(7);
+		g.shortestPath(0);
 	}
 
 }

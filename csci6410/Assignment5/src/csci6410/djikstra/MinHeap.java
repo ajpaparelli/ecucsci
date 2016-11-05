@@ -1,7 +1,5 @@
 package csci6410.djikstra;
 
-import java.util.ArrayList;
-
 public class MinHeap {
 	private HeapNode heap[];
 	private int position[];
@@ -9,29 +7,21 @@ public class MinHeap {
 	
 	private int parent(int pos)
 	{
-		//if(((pos-1)/2) > size)
-		//	throw new IndexOutOfBoundsException();
 		return (pos-1)/2;
 	}
 	
 	private int leftChild(int pos)
 	{
-		//if(pos > size)
-		//	throw new IndexOutOfBoundsException();
 		return (pos * 2) + 1;
 	}	
 
 	private int rightChild(int pos)
 	{
-		//if(pos > size)
-		//	throw new IndexOutOfBoundsException();
 		return (pos * 2) + 2;
 	}	
 	
 	private void swap(int pos1, int pos2)
 	{
-		//if((pos1 > size) || (pos2 > size))
-		//	throw new IndexOutOfBoundsException();
 		
 		HeapNode tempNode = heap[pos1];
 		heap[pos1] = heap[pos2];
@@ -107,13 +97,12 @@ public class MinHeap {
 		return min;
 	}
 	
-	public void heapDecreaseKey(int V, double distance, ArrayList<Edge> edges)
+	public void heapDecreaseKey(int V, double distance)
 	{
 		int pos = position[V];
 		
 		heap[pos].setDistance(distance);
 		heap[pos].setVertex(V);
-		heap[pos].setEdges(edges);
 		
 		while((pos != 0) && (heap[pos].getDistance() < heap[parent(pos)].getDistance()))
 		{
