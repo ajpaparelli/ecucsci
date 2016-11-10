@@ -1,3 +1,19 @@
+/*
+	Name: Adrian Paparelli
+	
+	Class: CSCI 6410
+	
+	Assignment 5
+	
+	Class Definition:  This is the main class for Assignment 5.  The program will read input as defined by the assignment
+	document.  It will accept a file name as the first command line parameter, if no file is provided the program will accept
+	user input one value as a time.
+	
+	Compile Instructions:  javac *.java
+	
+	Execution: java Dijkstra <file_name>
+*/
+
 import java.util.*;
 import java.io.File;
 import java.io.FileReader;
