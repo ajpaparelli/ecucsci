@@ -1,4 +1,15 @@
-
+/*
+	Name: Adrian Paparelli
+	
+	Class: CSCI 6410
+	
+	Assignment 5
+	
+	Class Name: Graph.java
+		
+	Class Definition:  Defines the container class for the edges in the Graphs adjacency list.
+	
+*/
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -9,6 +20,8 @@ public class Graph {
 	private int V;
 	private int E;
 	
+	//Initialize the graph to contain V verticies and E edges, and initalize the adjacency list
+	// for each Vertex in the graph
 	public Graph(int V, int E)
 	{
 		this.V = V;
@@ -18,6 +31,7 @@ public class Graph {
 			AdjList[i] = null;
 	}
 	
+	//Function to add an edge to the Graphs adjacency list for the source vertex
 	public void addEdge(int source, int destination, double distance)
 	{
 		EdgeNode tmpNode = new EdgeNode(new Edge(source-1, destination-1, distance));
@@ -26,6 +40,10 @@ public class Graph {
 		AdjList[source-1] = tmpNode;
 	}
 	
+	//Function to calculate the shortest path to each vertex reachable from 
+	// the vertex defined by source.  Once the calculation is complete the vertex
+	// list will be displayed with distance and path values.  If there is no path
+	// the distance will be reported as infinite and no path value will be displayed
 	public void shortestPath(int source)
 	{
 		HeapNode nodes[] = new HeapNode[V];
@@ -99,22 +117,5 @@ public class Graph {
 		}
 		
 
-	}
-	
-	public void printGraph()
-	{
-		for(int i = 0; i < V; i++)
-		{
-			EdgeNode curptr = AdjList[i];
-			while(curptr != null)
-			{
-				Edge edge = curptr.getEdge();
-				System.out.print(Integer.toString(i) + ": ");
-				System.out.print(Integer.toString(edge.getDestination()));
-				System.out.print(" --> ");
-				curptr = curptr.getNext();
-			}
-			System.out.println("");
-		}
 	}
 }
