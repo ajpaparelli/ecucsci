@@ -1,4 +1,3 @@
-package csci6410.djikstra;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,10 +20,10 @@ public class Graph {
 	
 	public void addEdge(int source, int destination, double distance)
 	{
-		EdgeNode tmpNode = new EdgeNode(new Edge(source, destination, distance));
+		EdgeNode tmpNode = new EdgeNode(new Edge(source-1, destination-1, distance));
 		
-		tmpNode.setNext(AdjList[source]);
-		AdjList[source] = tmpNode;
+		tmpNode.setNext(AdjList[source-1]);
+		AdjList[source-1] = tmpNode;
 	}
 	
 	public void shortestPath(int source)
@@ -41,9 +40,9 @@ public class Graph {
 
 		heap.buildMinHeap(nodes);
 		
-		distance[source] = 0;
+		distance[source-1] = 0;
 			
-		heap.heapDecreaseKey(source, distance[source]);
+		heap.heapDecreaseKey(source-1, distance[source-1]);
 	
 
 		while(heap.getSize() != 0)
@@ -75,7 +74,7 @@ public class Graph {
 		
 		for(int i = 0; i < this.V; i++)
 		{
-			System.out.println("Vertex: " + Integer.toString(i));
+			System.out.println("Vertex: " + Integer.toString(i+1));
 			if(distance[i] == Double.MAX_VALUE)
 			{
 				System.out.println("No Path Defined");
@@ -85,13 +84,13 @@ public class Graph {
 				System.out.println("Distance: " + df2.format(distance[i]));
 				ArrayList<Edge> edges = nodes[i].getEdges();
 				System.out.print("Path: ");
-				if(i == source)
+				if(i == (source-1))
 					System.out.print("Source Vertex");
 				else
 				{
 					for(int j = 0; j < edges.size(); j++)
 					{
-						int vertex = edges.get(j).getSource();
+						int vertex = edges.get(j).getSource() +1;
 						System.out.print(Integer.toString(vertex) + " ");
 					}
 				}

@@ -1,24 +1,66 @@
-package csci6410.djikstra;
+import java.util.*;
+import java.io.File;
+import java.io.FileReader;
 
 public class Dijkstra {
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Graph g = new Graph(9,10);
-		
-		g.addEdge(0, 1, 13.50);
-		g.addEdge(0, 2, 12.10);
-		g.addEdge(2, 3, 12.30);
-		
-		g.addEdge(1, 3, 1.40);
-		g.addEdge(3, 4, 14.00);
-		g.addEdge(3, 5, 12.10);
-		
-		g.addEdge(4, 6, 9.90);
-		g.addEdge(5, 7, 4.30);
-		g.addEdge(6, 8, 2.30);
-		g.addEdge(7, 8, 5.60);
-		g.shortestPath(0);
+	public static void main(String[] args)
+	{
+			Scanner sc;
+			try
+			{
+			if(args.length == 0)
+				sc = new Scanner(System.in);
+			else
+			{
+				FileReader reader = new FileReader(new File(args[0]));
+				sc = new Scanner(reader);
+			}
+	
+			int s, d;
+			double w;
+			int V = sc.nextInt();
+			int E = sc.nextInt();
+			Graph g = new Graph(V,E);
+			for(int i = 0; i < E; i++)
+			{
+				s = sc.nextInt();
+				d = sc.nextInt();
+				w = sc.nextDouble();
+				g.addEdge(s,d,w);
+			}
+			g.shortestPath(1);
+		}
+		catch(Exception x)
+		{}
 	}
 
 }
+
+	//	Scanner sc;
+	//	try
+	//	{
+	//		if(args.length == 0)
+	//			sc = new Scanner(System.in);
+	//		else
+	//		{
+			//	FileReader reader = new FileReader(new File(args[0]));
+			//	sc = new Scanner(reader);
+	//		}
+	
+	//		int s, d;
+	//		double w;
+			//int V = sc.nextInt();
+			//int E = sc.nextInt();
+			/*for(int i = 0; i < E; i++)
+			{
+				s = sc.nextInt();
+				d = sc.nextInt();
+				w = sc.nextDouble();
+				String str = String.valueOf(s) + " " + String.valueOf(d) + " " + Double.toString(w);
+				System.out.println(str);
+				//g.addEdge(s,d,w);
+			}*/	
+//	}
+	//	catch(Exception x)
+	//	{}

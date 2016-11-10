@@ -1,4 +1,3 @@
-package csci6410.djikstra;
 
 public class MinHeap {
 	private HeapNode heap[];
